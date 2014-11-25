@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "sqlite3.h"
 
 // Main print
@@ -14,9 +15,15 @@ static int printResult(void *data, int argc, char **argv, char **azColName) {
 }
 
 // Functionality block
-int testSQL(sqlite3 *db, char *errmsg) {
-  // Build you statement here
-  return sqlite3_exec(db, "select * from account", printResult, 0, &errmsg);
+int getAccountInfoById(sqlite3 *db, char *errmsg) {
+  char id[10];
+  char sql[100] = "select * from account where account_id=";
+
+  printf("\tEnter account id to see: ");
+  scanf("%s", id);
+
+  strcat(sql, id);
+  return sqlite3_exec(db, sql, printResult, 0, &errmsg);
 }
 // end
 
@@ -46,7 +53,7 @@ int main(int argc, char **argv) {
     scanf("%d", &operation);
     switch(operation) {
       case 1:
-        rc = testSQL(db, zErrMsg);
+        rc = getAccountInfoById(db, zErrMsg);
         break;
     }
 
