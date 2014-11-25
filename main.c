@@ -16,7 +16,7 @@ static int printResult(void *data, int argc, char **argv, char **azColName) {
 // Functionality block
 int testSQL(sqlite3 *db, char *errmsg) {
   // Build you statement here
-  return sqlite3_exec(db, "select * from users", printResult, 0, &errmsg);
+  return sqlite3_exec(db, "select * from account", printResult, 0, &errmsg);
 }
 // end
 
@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
   // Put our operation here
   char *states[1] = {
-    "1. See all users."
+    "1. See all account."
   };
 
   rc = sqlite3_open(argv[1], &db);
