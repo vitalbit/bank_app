@@ -3,6 +3,10 @@
 #include <string.h>
 #include "sqlite3.h"
 
+#define false 0
+#define true 1
+typedef int bool; // or #define bool int
+
 // Main print
 static int printResult(void *data, int argc, char **argv, char **azColName) {
   int i;
@@ -30,9 +34,9 @@ static bool credit(sqlite3 *db)
 {
   int account_id = 0;
   double credit_sum = 0;
-  printf("Enter account id: ");
+  printf("\tEnter account id: ");
   scanf("%d", &account_id);
-  printf("Enter credit sum: ");
+  printf("\tEnter credit sum: ");
   scanf("%lf", &credit_sum);
   if (sqlite3_open("Bank.sqlite", &db) == SQLITE_OK)
   {
@@ -106,12 +110,12 @@ static bool credit(sqlite3 *db)
             return true;
           }
           else
-            printf("Result balance more than limit!\n");
+            printf("\tResult balance more than limit!\n");
         }
       }
     }
     else
-      printf("No account with such id!\n");
+      printf("\tNo account with such id!\n");
     sqlite3_close(db);
     return false;
   }
