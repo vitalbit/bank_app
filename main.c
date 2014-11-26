@@ -147,12 +147,12 @@ int main(int argc, char **argv) {
       case 1:
         rc = getAccountInfoById(db, zErrMsg);
         break;
-    case 2:
-      if (credit(db))
-      printf("Credit success!\n");
-    else
-      printf("Credit error!\n");
-    break;
+      case 2:
+        if (credit(db))
+          printf("Credit success!\n");
+        else
+          printf("Credit error!\n");
+        break;
     }
 
     if( rc!=SQLITE_OK ) {
