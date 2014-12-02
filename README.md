@@ -1,13 +1,17 @@
 ## Usage
 
-Add sqlite datebase name to arguments, when launch programm.
+You must have proper c compiler (gcc or clang). In terminal run:
+```
+    $ make
+```
+to build application.
 
-Example:
-- (compile main.c) 
+More commands:
+- Run application
 ```
-    $ clang main.c -lsqlite3 -o bank
+    $ make start
 ```
-- (run bank application)
+- Clean application
 ```
-    $ ./bank Bank.sqlite
+    $ make clean
 ```
