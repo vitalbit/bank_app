@@ -123,14 +123,13 @@ static bool credit(sqlite3 *db)
 	return false;
 }
 
-static bool authorization(sqlite3 *db)
+static void authorization(sqlite3 *db)
 {
 	char nick[100], password[100];
 	printf("\tEnter your nickname: ");
-	scanf("%s", &nick);
+	scanf("%s", nick);
 	printf("\tEnter your password: ");
-	scanf("%s", &password);
-
+	scanf("%s", password);
 }
 // end
 
