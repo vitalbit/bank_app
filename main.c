@@ -143,6 +143,45 @@ bool credit(sqlite3 *db)
 	return false;
 }
 
+void blockAccountByNicknameAndType(sqlite3 *db, char * nickname, int type_id){
+	sqlite3_stmt *stmt = NULL;
+	char *sqlBlockAccountByNicknameAndType = "UPDATE Account SET is_block = 1 WHERE client_id = (SELECT client_id FROM Client where nickname = ?) AND account_type_id = ?";
+	sqlite3_prepare_v2(db, sqlBlockAccountByNicknameAndType, strlen(sqlBlockAccountByNicknameAndType), &stmt, NULL);
+	sqlite3_bind_text (stmt, 1, nickname, strlen(nickname), 0);
+	sqlite3_bind_int(stmt, 2, type_id);
+	sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+}
+
+void blockAccountByClientIDAndType(sqlite3 *db, int client_id, int type_id){
+	sqlite3_stmt *stmt = NULL;
+	char *sqlBlockAccountByClientIDAndType = "UPDATE Account SET is_block = 1 WHERE client_id = ? AND account_type_id = ?";
+	sqlite3_prepare_v2(db, sqlBlockAccountByClientIDAndType, strlen(sqlBlockAccountByClientIDAndType), &stmt, NULL);
+	sqlite3_bind_int(stmt, 1, client_id);
+	sqlite3_bind_int(stmt, 2, type_id);
+	sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+}
+
+void getHistoryByAccountID(sqlite3 *db, int account_id){
+	sqlite3_stmt *stmt = NULL;
+	char* sqlGetHistoryByAccountID = "SELECT L.log_date , O.operation_name FROM Log L INNER JOIN Operation O ON L.operation_id = O.operation_id where L.account_id = ?";
+	char * date = 0;
+	char * operation = 0;
+	sqlite3_prepare_v2(db, sqlGetHistoryByAccountID, strlen(sqlGetHistoryByAccountID), &stmt, NULL);
+	sqlite3_bind_int(stmt, 1, account_id);
+
+	int res = 0;
+	while ((res = sqlite3_step(stmt)) == SQLITE_ROW)         
+	{
+		date = (char*)sqlite3_column_text(stmt, 0);
+		operation = (char*)sqlite3_column_text(stmt, 1);
+
+		printf("date : %s  operation : %s\n",date, operation);
+	}
+	sqlite3_finalize(stmt);
+}
+
 bool authorization(sqlite3 *db)
 {
 	char nick[100], password[100];
@@ -170,13 +209,19 @@ int main(int argc, char **argv) {
 	sqlite3 *db;
 	char *zErrMsg = 0;
 	char buffer[50];
-	int OPERATION_COUNT = 2;
+	int OPERATION_COUNT = 5;
 	int rc, operation, id;
+	char *nickname = "";
+	int account_id = 0;
+	int client_id = 0;
 
 	// Put our operation here
-	char *states[2] = {
+	char *states[5] = {
 		"1. See all account.",
-		"2. Credit money."
+		"2. Credit money.",
+		"3. Block an account (by client id)",
+		"4. Block an account (by nickname)",
+		"5. View the history of user operations"
 	};
 
 	rc = sqlite3_open(argv[1], &db);
@@ -204,6 +249,25 @@ int main(int argc, char **argv) {
 					printf("Credit success!\n");
 				else
 					printf("Credit error!\n");
+				break;
+			case 3:
+				printf("Enter client id\n");
+				scanf("%u", &client_id);
+				printf("Enter account_type_id\n");
+				scanf("%u", &account_id);
+				blockAccountByClientIDAndType(db, client_id, account_id);
+				break;
+			case 4:
+				printf("Enter client nickname\n");
+				scanf("%s", &nickname);
+				printf("Enter account_type_id\n");
+				scanf("%u", &account_id);
+				blockAccountByNicknameAndType(db, nickname, account_id);
+				break;
+			case 5:
+				printf("Enter client account id\n");
+				scanf("%u", &account_id);
+				getHistoryByAccountID(db,account_id);
 				break;
 			}
 
