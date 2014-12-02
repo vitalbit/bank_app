@@ -36,12 +36,12 @@ static bool credit(sqlite3 *db)
 {
 	int account_id = 0;
 	double credit_sum = 0;
+	char *query = "select at.name, a.balance from AccountType at inner join Account a on a.account_type_id = at.account_type_id where a.account_id = ?;";
+	sqlite3_stmt *statement;
 	printf("\tEnter account id: ");
 	scanf("%d", &account_id);
 	printf("\tEnter credit sum: ");
 	scanf("%lf", &credit_sum);
-	char *query = "select at.name, a.balance from AccountType at inner join Account a on a.account_type_id = at.account_type_id where a.account_id = ?;";
-	sqlite3_stmt *statement;
 	sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
 	sqlite3_bind_int(statement, 1, account_id);
 	if (sqlite3_step(statement) == SQLITE_ROW)
@@ -52,10 +52,11 @@ static bool credit(sqlite3 *db)
 		{
 			sqlite3_stmt *statement2;
 			char *query2 = "update account set balance = ? where account_id = ?;";
+			int res;
 			sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
 			sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
 			sqlite3_bind_int(statement2, 2, account_id);
-			int res = sqlite3_step(statement2);
+			res = sqlite3_step(statement2);
 			sqlite3_finalize(statement2);
 			sqlite3_close(db);
 			return true;
@@ -64,14 +65,15 @@ static bool credit(sqlite3 *db)
 		{
 			sqlite3_stmt *statement2;
 			char *query2 = "update account set balance = ? where account_id = ?;";
+			int res;
+			sqlite3_stmt *statement3;
+			char *query3 = "select total_operations from CurrentAccount where account_id = ?;";
 			sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
 			sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
 			sqlite3_bind_int(statement2, 2, account_id);
-			int res = sqlite3_step(statement2);
+			res = sqlite3_step(statement2);
 			sqlite3_finalize(statement2);
-
-			sqlite3_stmt *statement3;
-			char *query3 = "select total_operations from CurrentAccount where account_id = ?;";
+			
 			sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
 			sqlite3_bind_int(statement3, 1, account_id);
 			if (sqlite3_step(statement3) == SQLITE_ROW)
@@ -79,10 +81,11 @@ static bool credit(sqlite3 *db)
 				int total = atoi((char*)sqlite3_column_text(statement3, 0));
 				sqlite3_stmt *statement4;
 				char *query4 = "update CurrentAccount set total_operations = ? where account_id = ?;";
+				int res;
 				sqlite3_prepare_v2(db, query4, strlen(query4), &statement4, NULL);
 				sqlite3_bind_int(statement4, 1, total + 1);
 				sqlite3_bind_int(statement4, 2, account_id);
-				int res = sqlite3_step(statement4);
+				res = sqlite3_step(statement4);
 				sqlite3_finalize(statement4);
 				sqlite3_close(db);
 				return true;
@@ -101,10 +104,11 @@ static bool credit(sqlite3 *db)
 				{
 					sqlite3_stmt *statement3;
 					char *query3 = "update account set balance = ? where account_id = ?;";
+					int res;
 					sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
 					sqlite3_bind_double(statement3, 1, atof(balance) + credit_sum);
 					sqlite3_bind_int(statement3, 2, account_id);
-					int res = sqlite3_step(statement3);
+					res = sqlite3_step(statement3);
 					sqlite3_finalize(statement3);
 					sqlite3_close(db);
 					return true;
@@ -117,6 +121,16 @@ static bool credit(sqlite3 *db)
 	else
 		printf("\tNo account with such id!\n");
 	return false;
+}
+
+static bool authorization(sqlite3 *db)
+{
+	char nick[100], password[100];
+	printf("\tEnter your nickname: ");
+	scanf("%s", &nick);
+	printf("\tEnter your password: ");
+	scanf("%s", &password);
+
 }
 // end
 
