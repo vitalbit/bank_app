@@ -227,6 +227,228 @@ void unblockAccountByClientIDAndType(sqlite3 *db, int client_id, int type_id){
 	sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 }
+
+int debitMoney(int amount, char *operationDate, char *clientNickName, char *clientPassword, int accountID)
+{
+	char *operationName;
+
+	double balance;
+	int clientID;
+	int operationID;
+
+	sqlite3_stmt *statement;
+
+	const char *selectClient="select client_id from Client where nickname=? and password=?";
+	const char *selectBalance="select balance from Account where client_id=? and account_id=?";
+	const char *updateBalance="update Account set balance=? where client_id=? and account_id=?";
+	const char *insertOperation="insert into Operation(operation_name) values(?)";
+	const char *selectOperationID="select operation_id from Operation where operation_name=? limit 1";
+	const char *insertLOG="insert into Log(log_date, operation_id, account_id) values(?,?,?)";
+
+	operationName="debit";
+
+	if(sqlite3_prepare(db, selectClient, -1, &statement, 0)!= SQLITE_OK) 
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 1, clientNickName, strlen(clientNickName), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 2, clientPassword, strlen(clientPassword), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	while(sqlite3_step(statement)==SQLITE_ROW)
+	{
+		clientID=sqlite3_column_int(statement, 0);
+
+		if(!clientID)
+		{
+			printf("Wrong nickname or password!!\n");
+			return -1;
+		}
+	}
+
+	sqlite3_finalize(statement);
+
+	if(sqlite3_prepare(db, selectBalance, -1, &statement, 0)!= SQLITE_OK) 
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_int(statement, 1, clientID))
+	{
+		printf("Could not bind integer: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_int(statement, 2, accountID))
+	{
+		printf("Could not bind integer: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	while(sqlite3_step(statement)==SQLITE_ROW)
+	{
+		balance=sqlite3_column_double(statement, 0);		
+	}
+	
+	if(sqlite3_prepare(db, updateBalance, -1, &statement, 0)!= SQLITE_OK) 
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_double(statement, 1, balance + amount))
+	{
+		printf("Could not bind double: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_int(statement, 2, clientID))
+	{
+		printf("Could not bind integer: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_int(statement, 3, accountID))
+	{
+		printf("Could not bind integer: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if(sqlite3_step(statement)==SQLITE_DONE)
+	{
+		printf("Balance updated!! You've debit %.3lf $\n", amount);
+	}
+
+	if(sqlite3_prepare(db, insertOperation, -1, &statement, 0)!=SQLITE_OK) 
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 1, operationName, strlen(operationName), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if(sqlite3_step(statement)==SQLITE_DONE)
+	{
+		printf("Row into Operation table inserted!!\n");
+	}
+
+	if(sqlite3_prepare(db, selectOperationID, -1, &statement, 0)!= SQLITE_OK) 
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 1, operationName, strlen(operationName), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	while(sqlite3_step(statement)==SQLITE_ROW)
+	{
+		operationID=sqlite3_column_int(statement, 0);		
+	}
+	
+	if(sqlite3_prepare(db, insertLOG, -1, &statement, 0)!= SQLITE_OK) 
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 1, operationDate, strlen(operationDate), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_int(statement, 2, operationID))
+	{
+		printf("Could not bind integer: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_int(statement, 3, accountID))
+	{
+		printf("Could not bind integer: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if(sqlite3_step(statement)==SQLITE_DONE)
+	{
+		printf("LOG table updated!!\n");
+	}
+	return 0;
+}
+
+int getUserInfo(char *clientNickName, char *clientPassword)
+{
+	char *email;
+	char *fullName;
+
+	int block;
+	int clientID;
+	sqlite3_stmt *statement;
+
+	const char *selectClient="select * from Client where nickname=? and password=?";
+
+	if(sqlite3_prepare(db, selectClient, -1, &statement, 0)!= SQLITE_OK) 
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 1, clientNickName, strlen(clientNickName), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 2, clientPassword, strlen(clientPassword), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	while(sqlite3_step(statement)==SQLITE_ROW)
+	{
+		clientID=sqlite3_column_int(statement, 0);
+
+		if(!clientID)
+		{
+			printf("Wrong nickname or password!!\n");
+			return -1;
+		}
+		else
+		{
+			printf("Client id: %d\n", clientID);
+			fullName=(char*)sqlite3_column_text(statement, 1);
+			printf("Full name: %s\n", fullName);
+			email=(char*)sqlite3_column_text(statement, 2);
+			printf("Full name: %s\n", email);
+			block=sqlite3_column_int(statement, 5);
+			printf("Is blocked: %d\n", block);
+		}
+	}
+
+	sqlite3_finalize(statement);
+}
+
+
 bool authorization(sqlite3 *db)
 {
 	char nick[100], password[100];
@@ -254,21 +476,26 @@ int main(int argc, char **argv) {
 	sqlite3 *db;
 	char *zErrMsg = 0;
 	char buffer[50];
-	int OPERATION_COUNT = 5;
+	int OPERATION_COUNT = 9;
 	int rc, operation, id;
 	char *nickname = "";
 	int account_id = 0;
 	int client_id = 0;
+	int amount = 0;
+	char* operationDate="";
+	char* password = "";
 
 	// Put our operation here
-	char *states[5] = {
+	char *states[9] = {
 		"1. See all account.",
 		"2. Credit money.",
 		"3. Block an account (by client id)",
 		"4. Block an account (by nickname)",
 		"5. View the history of user operations",
-		"6.Unblock an account (by cliend id)",
-		"7. Unblock an account (by nickname)"
+		"6. Unblock an account (by cliend id)",
+		"7. Unblock an account (by nickname)",
+		"8. Debit money",
+		"9. Get user info"
 	};
 
 	rc = sqlite3_open(argv[1], &db);
@@ -330,6 +557,26 @@ int main(int argc, char **argv) {
 					printf("Enter account type id\n");
 					scanf("%u", &account_id);
 					unbockAccountByNicknameAndType(db, nickname, account_id);
+				break;
+				case 8:
+					printf("Enter amount:\n");
+					scanf("%u", &amount);
+					printf("Enter operation date:\n");
+					scanf("%s", &operationDate);
+					printf("Enter client nickname\n");
+					scanf("%s", &nickname);
+					printf("Enter client password\n");
+					scanf("%s", &password);
+					printf("Enter account  id\n");
+					scanf("%u", &account_id);
+					debitMoney(amount, operationDate, nickname, password, account_id);
+				break;
+				case 9:
+					printf("Enter client nickname\n");
+					scanf("%s", &nickname);
+					printf("Enter client password\n");
+					scanf("%s", &password);
+					getUserInfo(char *nickname, char *password);
 				break;
 			}
 
