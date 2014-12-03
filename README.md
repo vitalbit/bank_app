@@ -1,6 +1,6 @@
 ## Usage
 
-You must have proper c compiler (gcc or clang). In terminal run:
+You must have a proper c compiler (gcc or clang). In terminal run:
 ```
     $ make
 ```
@@ -11,7 +11,7 @@ More commands:
 ```
     $ make start
 ```
-- Clean application
+- Delete application
 ```
     $ make clean
 ```
