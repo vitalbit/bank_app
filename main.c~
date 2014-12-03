@@ -283,8 +283,7 @@ int main(int argc, char **argv) {
 		role = getRole(db);
 
 		while (!rc) {
-                        int i;
-			for (i = 0; i != OPERATION_COUNT; i++) {
+			for (int i = 0; i != OPERATION_COUNT; i++) {
 				printf("%s\n", states[i]);
 			}
 			scanf("%d", &operation);
