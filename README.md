@@ -1,6 +1,6 @@
 ## Usage
 
-You must a have proper c compiler (gcc or clang). In terminal run:
+You must have a proper c compiler (gcc or clang). In terminal run:
 ```
     $ make
 ```
