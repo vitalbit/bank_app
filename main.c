@@ -74,7 +74,7 @@ void creditLog(sqlite3 *db, int account_id)
 
 bool credit(sqlite3 *db)
 {
-	if (strcmp(role, "Administrator") == 0 || strcmp(role, "Operator") == 0)
+	if (strcmp(role, "Operator") == 0)
 	{
 		int account_id = 0;
 		double credit_sum = 0;
