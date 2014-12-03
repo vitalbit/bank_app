@@ -237,7 +237,7 @@ void deleteClientByClientID(sqlite3 *db, int client_id){
 	sqlite3_finalize(stmt);
 }
 
-int debitMoney(int amount, char *operationDate, char *clientNickName, char *clientPassword, int accountID)
+int debitMoney(sqlite3 *db, int amount, char *operationDate, char *clientNickName, char *clientPassword, int accountID)
 {
 	char *operationName;
 
@@ -404,7 +404,7 @@ int debitMoney(int amount, char *operationDate, char *clientNickName, char *clie
 	return 0;
 }
 
-int getUserInfo(char *clientNickName, char *clientPassword)
+int getUserInfo(sqlite3 *db, char *clientNickName, char *clientPassword)
 {
 	char *email;
 	char *fullName;
@@ -584,14 +584,14 @@ int main(int argc, char **argv) {
 				scanf("%s", &password);
 				printf("Enter account  id\n");
 				scanf("%u", &account_id);
-				debitMoney(amount, operationDate, nickname, password, account_id);
+				debitMoney(db, amount, operationDate, nickname, password, account_id);
 				break;
 			case 10:
 				printf("Enter client nickname\n");
 				scanf("%s", &nickname);
 				printf("Enter client password\n");
 				scanf("%s", &password);
-				getUserInfo(char *nickname, char *password);
+				getUserInfo(db, nickname, password);
 				break;
 			}
 
