@@ -7,13 +7,14 @@
 #include <time.h>
 
 #include "include/getAccountInfoById.h"
+#include "include/credit.h"
+#include "checkAccountBlock.h"
 
 #define false 0
 #define true 1
 typedef int bool; // or #define bool int
 
 int curr_id = -1;
-char *role = "";
 
 // Main print
 // static int printResult(void *data, int argc, char **argv, char **azColName) {
@@ -41,7 +42,7 @@ char *getRole(sqlite3 *db)
   return NULL;
 }
 
-bool isAccountBlock(sqlite3 *db, int account_id)
+/*bool isAccountBlock(sqlite3 *db, int account_id)
 {
   sqlite3_stmt *stmt = NULL;
   char *sqlBlockAccountByAccountID = "select is_block from Account WHERE account_id = ?;";
@@ -53,7 +54,7 @@ bool isAccountBlock(sqlite3 *db, int account_id)
   }
   else
     return true;
-}
+}*/
 
 // int getAccountInfoById(sqlite3 *db, char *errmsg) {
 //   char id[10];
@@ -66,13 +67,8 @@ bool isAccountBlock(sqlite3 *db, int account_id)
 //   return sqlite3_exec(db, sql, printResult, 0, &errmsg);
 // }
 
-void creditLog(sqlite3 *db, int account_id)
+/*void creditLog(sqlite3 *db, int account_id)
 {
-  /**
-   *
-   * All problems is for _itoa. Use another function
-   *
-   */
 
   char query[255] = "insert into Log values (null, '";
   sqlite3_stmt *statement;
@@ -100,11 +96,11 @@ void creditLog(sqlite3 *db, int account_id)
   sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
   sqlite3_step(statement);
   sqlite3_finalize(statement);
-}
+}*/
 
-bool credit(sqlite3 *db)
+/*bool credit(sqlite3 *db)
 {
-  if (strcmp(role, "Operator") == 0)
+  if (strcmp(getRole(db), "Operator") == 0)
   {
     int account_id = 0;
     double credit_sum = 0;
@@ -202,7 +198,7 @@ bool credit(sqlite3 *db)
       printf("\tAccount is block!\n");
   }
   return false;
-}
+}*/
 
 void blockAccountByAccountID(sqlite3 *db, int account_id){
   sqlite3_stmt *stmt = NULL;
@@ -526,7 +522,7 @@ int main(int argc, char **argv) {
   }
 
   if (authorization(db)) {
-    role = getRole(db);
+    char *role = getRole(db);
 
     while (!rc) {
       int i;
@@ -536,53 +532,91 @@ int main(int argc, char **argv) {
       scanf("%d", &operation);
       switch (operation) {
       case 1:
-        rc = getAccountInfoById(db, zErrMsg);
+	    if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
+			rc = getAccountInfoById(db, zErrMsg);
+		else
+			printf("Your are not Operator or Administrator");
         break;
       case 2:
-        if (credit(db))
-          printf("Credit success!\n");
-        else
-          printf("Credit error!\n");
+		if (strcmp(role, "Operator") == 0)
+		{
+			if (credit(db))
+				printf("Credit success!\n");
+			else
+				printf("Credit error!\n");
+		}
+		else
+			printf("Your are not an Operator");
         break;
       case 3:
-        printf("Enter account id\n");
-        scanf("%u", &account_id);
-        blockAccountByAccountID(db, account_id);
+		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
+		{
+			printf("Enter account id\n");
+			scanf("%u", &account_id);
+			blockAccountByAccountID(db, account_id);
+		}
+		else
+			printf("Your are not Operator or Administrator");
         break;
       case 4:
-        printf("Enter client account id\n");
-        scanf("%u", &account_id);
-        getHistoryByAccountID(db,account_id);
+		if (strcmp(role, "Administrator") == 0)
+		{
+			printf("Enter client account id\n");
+			scanf("%u", &account_id);
+			getHistoryByAccountID(db,account_id);
+		}
+		else
+			printf("Your are not an Administrator");
         break;
       case 5:
-        printf("Enter account id\n");
-        scanf("%u", &account_id);
-        unblockAccountByAccountID(db, account_id);
+		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
+		{
+			printf("Enter account id\n");
+			scanf("%u", &account_id);
+			unblockAccountByAccountID(db, account_id);
+		}
+		else
+			printf("Your are not Operator or Administrator");
         break;
       case 6:
-        printf("Enter client id\n");
-        scanf("%u", &client_id);
-        deleteClientByClientID(db, client_id);
+		if (strcmp(role, "Administrator") == 0)
+		{
+			printf("Enter client id\n");
+			scanf("%u", &client_id);
+			deleteClientByClientID(db, client_id);
+		}
+		else
+			printf("Your are not an Administrator");
         break;
       case  7:
-        printf("Enter amount:\n");
-        scanf("%u", &amount);
-        printf("Enter operation date:\n");
-        scanf("%s", &operationDate);
-        printf("Enter client nickname\n");
-        scanf("%s", &nickname);
-        printf("Enter client password\n");
-        scanf("%s", &password);
-        printf("Enter account  id\n");
-        scanf("%u", &account_id);
-        debitMoney(db, amount, operationDate, nickname, password, account_id);
+		if (strcmp(role, "Operator") == 0)
+		{
+			printf("Enter amount:\n");
+			scanf("%u", &amount);
+			printf("Enter operation date:\n");
+			scanf("%s", &operationDate);
+			printf("Enter client nickname\n");
+			scanf("%s", &nickname);
+			printf("Enter client password\n");
+			scanf("%s", &password);
+			printf("Enter account  id\n");
+			scanf("%u", &account_id);
+			debitMoney(db, amount, operationDate, nickname, password, account_id);
+		}
+		else
+			printf("Your are not an Operator");
         break;
       case 8:
-        printf("Enter client nickname\n");
-        scanf("%s", &nickname);
-        printf("Enter client password\n");
-        scanf("%s", &password);
-        getUserInfo(db, nickname, password);
+		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
+		{
+			printf("Enter client nickname\n");
+			scanf("%s", &nickname);
+			printf("Enter client password\n");
+			scanf("%s", &password);
+			getUserInfo(db, nickname, password);
+		}
+		else
+			printf("Your are not Operator or Administrator");
         break;
       }
 

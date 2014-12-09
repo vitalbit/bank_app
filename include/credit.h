@@ -1,0 +1,1 @@
+bool credit(sqlite3 *db);
