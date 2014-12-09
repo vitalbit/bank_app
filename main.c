@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sqlite3.h"
-#include <time.h>
+#include <sys/time.h>
 
 #define false 0
 #define true 1
@@ -66,24 +66,32 @@ int getAccountInfoById(sqlite3 *db, char *errmsg) {
 
 void creditLog(sqlite3 *db, int account_id)
 {
-	char query[255] = "insert into Log values (null, '";
-	sqlite3_stmt *statement;
-	time_t t = time(NULL);
-	struct tm* tm = localtime(&t);
-	char date[100] = "", tmp[100] = "";
-	strcat(date, _itoa(tm->tm_year + 1900, tmp, 10));
-	strcat(date, "-");
-	strcat(date, _itoa(tm->tm_mon + 1, tmp, 10));
-	strcat(date, "-");
-	strcat(date, _itoa(tm->tm_mday, tmp, 10));
-	strcat(query, date);
-	strcat(query, "', 3, ");
-	_itoa(account_id, tmp, 10);
-	strcat(query, tmp);
-	strcat(query, ");");
-	sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
-	sqlite3_step(statement);
-	sqlite3_finalize(statement);
+	/**
+	 *
+	 * All problems is for _itoa. Use another function
+	 *
+	 */
+
+
+
+	// char query[255] = "insert into Log values (null, '";
+	// sqlite3_stmt *statement;
+	// time_t t = time(NULL);
+	// struct tm* tm = localtime(&t);
+	// char date[100] = "", tmp[100] = "";
+	// strcat(date, _itoa(tm->tm_year + 1900, tmp, 10));
+	// strcat(date, "-");
+	// strcat(date, _itoa(tm->tm_mon + 1, tmp, 10));
+	// strcat(date, "-");
+	// strcat(date, _itoa(tm->tm_mday, tmp, 10));
+	// strcat(query, date);
+	// strcat(query, "', 3, ");
+	// _itoa(account_id, tmp, 10);
+	// strcat(query, tmp);
+	// strcat(query, ");");
+	// sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
+	// sqlite3_step(statement);
+	// sqlite3_finalize(statement);
 }
 
 bool credit(sqlite3 *db)

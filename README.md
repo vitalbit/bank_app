@@ -9,7 +9,7 @@ to build application.
 More commands:
 - Run application
 ```
-    $ make start
+    $ make run
 ```
 - Delete application
 ```

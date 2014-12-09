@@ -6,9 +6,9 @@ DB=Bank.sqlite
 
 # default make task
 all: main.c sqlite3.c
-	$(CC) main.c -lsqlite3 -o bank
+	$(CC) main.c sqlite3.c -o bank
 # start application
-start: bank
+run: bank
 	./bank $(DB)
 # delete executable files
 clean: bank
