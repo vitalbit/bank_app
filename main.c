@@ -39,6 +39,20 @@ char *getRole(sqlite3 *db)
 	return NULL;
 }
 
+bool isAccountBlock(sqlite3 *db, int account_id)
+{
+	sqlite3_stmt *stmt = NULL;
+	char *sqlBlockAccountByAccountID = "select is_block from Account WHERE account_id = ?;";
+	sqlite3_prepare_v2(db, sqlBlockAccountByAccountID, strlen(sqlBlockAccountByAccountID), &stmt, NULL);
+	sqlite3_bind_int(stmt, 1, account_id);
+	if (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		return atoi((char*)sqlite3_column_text(stmt, 0));
+	}
+	else
+		return true;
+}
+
 int getAccountInfoById(sqlite3 *db, char *errmsg) {
 	char id[10];
 	char sql[100] = "select * from account where account_id=";
@@ -84,87 +98,92 @@ bool credit(sqlite3 *db)
 		scanf("%d", &account_id);
 		printf("\tEnter credit sum: ");
 		scanf("%lf", &credit_sum);
-		sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
-		sqlite3_bind_int(statement, 1, account_id);
-		if (sqlite3_step(statement) == SQLITE_ROW)
+		if (!isAccountBlock(db, account_id))
 		{
-			char *typeAcc = (char*)sqlite3_column_text(statement, 0);
-			char *balance = (char*)sqlite3_column_text(statement, 1);
-			if (strcmp(typeAcc, "Saving account") == 0)
+			sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
+			sqlite3_bind_int(statement, 1, account_id);
+			if (sqlite3_step(statement) == SQLITE_ROW)
 			{
-				sqlite3_stmt *statement2;
-				char *query2 = "update account set balance = ? where account_id = ?;";
-				int res;
-				sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
-				sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
-				sqlite3_bind_int(statement2, 2, account_id);
-				res = sqlite3_step(statement2);
-				sqlite3_finalize(statement2);
-				sqlite3_close(db);
-				creditLog(db, account_id);
-				return true;
-			}
-			else if (strcmp(typeAcc, "Current account") == 0)
-			{
-				sqlite3_stmt *statement2;
-				char *query2 = "update account set balance = ? where account_id = ?;";
-				int res;
-				sqlite3_stmt *statement3;
-				char *query3 = "select total_operations from CurrentAccount where account_id = ?;";
-				sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
-				sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
-				sqlite3_bind_int(statement2, 2, account_id);
-				res = sqlite3_step(statement2);
-				sqlite3_finalize(statement2);
-
-				sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
-				sqlite3_bind_int(statement3, 1, account_id);
-				if (sqlite3_step(statement3) == SQLITE_ROW)
+				char *typeAcc = (char*)sqlite3_column_text(statement, 0);
+				char *balance = (char*)sqlite3_column_text(statement, 1);
+				if (strcmp(typeAcc, "Saving account") == 0)
 				{
-					int total = atoi((char*)sqlite3_column_text(statement3, 0));
-					sqlite3_stmt *statement4;
-					char *query4 = "update CurrentAccount set total_operations = ? where account_id = ?;";
+					sqlite3_stmt *statement2;
+					char *query2 = "update account set balance = ? where account_id = ?;";
 					int res;
-					sqlite3_prepare_v2(db, query4, strlen(query4), &statement4, NULL);
-					sqlite3_bind_int(statement4, 1, total + 1);
-					sqlite3_bind_int(statement4, 2, account_id);
-					res = sqlite3_step(statement4);
-					sqlite3_finalize(statement4);
+					sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
+					sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
+					sqlite3_bind_int(statement2, 2, account_id);
+					res = sqlite3_step(statement2);
+					sqlite3_finalize(statement2);
 					sqlite3_close(db);
 					creditLog(db, account_id);
 					return true;
 				}
-			}
-			else if (strcmp(typeAcc, "Overdraft account") == 0)
-			{
-				sqlite3_stmt *statement2;
-				char *query2 = "select max_amount from OverdraftAccount where account_id = ?;";
-				sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
-				sqlite3_bind_int(statement2, 1, account_id);
-				if (sqlite3_step(statement2) == SQLITE_ROW)
+				else if (strcmp(typeAcc, "Current account") == 0)
 				{
-					double max = atof((char*)sqlite3_column_text(statement2, 0));
-					if (atof(balance) + credit_sum <= max)
+					sqlite3_stmt *statement2;
+					char *query2 = "update account set balance = ? where account_id = ?;";
+					int res;
+					sqlite3_stmt *statement3;
+					char *query3 = "select total_operations from CurrentAccount where account_id = ?;";
+					sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
+					sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
+					sqlite3_bind_int(statement2, 2, account_id);
+					res = sqlite3_step(statement2);
+					sqlite3_finalize(statement2);
+
+					sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
+					sqlite3_bind_int(statement3, 1, account_id);
+					if (sqlite3_step(statement3) == SQLITE_ROW)
 					{
-						sqlite3_stmt *statement3;
-						char *query3 = "update account set balance = ? where account_id = ?;";
+						int total = atoi((char*)sqlite3_column_text(statement3, 0));
+						sqlite3_stmt *statement4;
+						char *query4 = "update CurrentAccount set total_operations = ? where account_id = ?;";
 						int res;
-						sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
-						sqlite3_bind_double(statement3, 1, atof(balance) + credit_sum);
-						sqlite3_bind_int(statement3, 2, account_id);
-						res = sqlite3_step(statement3);
-						sqlite3_finalize(statement3);
+						sqlite3_prepare_v2(db, query4, strlen(query4), &statement4, NULL);
+						sqlite3_bind_int(statement4, 1, total + 1);
+						sqlite3_bind_int(statement4, 2, account_id);
+						res = sqlite3_step(statement4);
+						sqlite3_finalize(statement4);
 						sqlite3_close(db);
 						creditLog(db, account_id);
 						return true;
 					}
-					else
-						printf("\tResult balance more than limit!\n");
+				}
+				else if (strcmp(typeAcc, "Overdraft account") == 0)
+				{
+					sqlite3_stmt *statement2;
+					char *query2 = "select max_amount from OverdraftAccount where account_id = ?;";
+					sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
+					sqlite3_bind_int(statement2, 1, account_id);
+					if (sqlite3_step(statement2) == SQLITE_ROW)
+					{
+						double max = atof((char*)sqlite3_column_text(statement2, 0));
+						if (atof(balance) + credit_sum <= max)
+						{
+							sqlite3_stmt *statement3;
+							char *query3 = "update account set balance = ? where account_id = ?;";
+							int res;
+							sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
+							sqlite3_bind_double(statement3, 1, atof(balance) + credit_sum);
+							sqlite3_bind_int(statement3, 2, account_id);
+							res = sqlite3_step(statement3);
+							sqlite3_finalize(statement3);
+							sqlite3_close(db);
+							creditLog(db, account_id);
+							return true;
+						}
+						else
+							printf("\tResult balance more than limit!\n");
+					}
 				}
 			}
+			else
+				printf("\tNo account with such id!\n");
 		}
 		else
-			printf("\tNo account with such id!\n");
+			printf("\tAccount is block!\n");
 	}
 	return false;
 }
