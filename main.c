@@ -72,26 +72,32 @@ void creditLog(sqlite3 *db, int account_id)
 	 *
 	 */
 
-
-
-	// char query[255] = "insert into Log values (null, '";
-	// sqlite3_stmt *statement;
-	// time_t t = time(NULL);
-	// struct tm* tm = localtime(&t);
-	// char date[100] = "", tmp[100] = "";
+	char query[255] = "insert into Log values (null, '";
+	sqlite3_stmt *statement;
+	time_t t = time(NULL);
+	struct tm* tm = localtime(&t);
+	char date[100] = "", tmp[100] = "";
 	// strcat(date, _itoa(tm->tm_year + 1900, tmp, 10));
-	// strcat(date, "-");
+	strcat(date, sprintf(tmp, "%d", tm->tm_year + 1900));
+
+	strcat(date, "-");
 	// strcat(date, _itoa(tm->tm_mon + 1, tmp, 10));
-	// strcat(date, "-");
+	strcat(date, sprintf(tmp, "%d", tm->tm_mon + 1));
+
+	strcat(date, "-");
 	// strcat(date, _itoa(tm->tm_mday, tmp, 10));
-	// strcat(query, date);
-	// strcat(query, "', 3, ");
+	strcat(date, sprintf(tmp, "%d", tm->tm_mday));
+
+	strcat(query, date);
+	strcat(query, "', 3, ");
 	// _itoa(account_id, tmp, 10);
-	// strcat(query, tmp);
-	// strcat(query, ");");
-	// sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
-	// sqlite3_step(statement);
-	// sqlite3_finalize(statement);
+	sprintf(tmp, "%d", account_id);
+
+	strcat(query, tmp);
+	strcat(query, ");");
+	sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
+	sqlite3_step(statement);
+	sqlite3_finalize(statement);
 }
 
 bool credit(sqlite3 *db)
