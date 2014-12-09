@@ -9,7 +9,7 @@ SRC=$(wildcard include/*.c)
 
 # default make task
 all: main.c $(SRC) $(LIB)/sqlite3.c
-	$(CC) main.c $(SRC) $(LIB)/sqlite3.c -o bank
+	$(CC) $^ -o bank
 # start application
 run: bank
 	./bank $(DB)
