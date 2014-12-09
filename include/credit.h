@@ -1,1 +1,1 @@
-bool credit(sqlite3 *db);
+int credit(sqlite3 *db);

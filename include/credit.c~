@@ -31,7 +31,7 @@ void creditLog(sqlite3 *db, int account_id)
   sqlite3_finalize(statement);
 }
 
-int credit(sqlite3 *db)
+bool credit(sqlite3 *db)
 {
     int account_id = 0;
     double credit_sum = 0;
@@ -61,7 +61,7 @@ int credit(sqlite3 *db)
           sqlite3_finalize(statement2);
           sqlite3_close(db);
           creditLog(db, account_id);
-          return 1;
+          return true;
         }
         else if (strcmp(typeAcc, "Current account") == 0)
         {
@@ -91,7 +91,7 @@ int credit(sqlite3 *db)
             sqlite3_finalize(statement4);
             sqlite3_close(db);
             creditLog(db, account_id);
-            return 1;
+            return true;
           }
         }
         else if (strcmp(typeAcc, "Overdraft account") == 0)
@@ -115,7 +115,7 @@ int credit(sqlite3 *db)
               sqlite3_finalize(statement3);
               sqlite3_close(db);
               creditLog(db, account_id);
-              return 1;
+              return true;
             }
             else
               printf("\tResult balance more than limit!\n");
@@ -127,5 +127,5 @@ int credit(sqlite3 *db)
     }
     else
       printf("\tAccount is block!\n");
-  return 0;
+  return false;
 }
