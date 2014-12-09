@@ -6,9 +6,10 @@
 #include "sqlite3.h"
 #include <time.h>
 
-#include "include/getAccountInfoById.h"
+//#include "include/getAccountInfoById.h"
 #include "include/credit.h"
-#include "include/checkAccountBlock.h"
+//#include "include/checkAccountBlock.h"
+#include "include/accountOperation.h"
 
 #define false 0
 #define true 1
@@ -199,7 +200,7 @@ char *getRole(sqlite3 *db)
   }
   return false;
 }*/
-
+/*
 void blockAccountByAccountID(sqlite3 *db, int account_id){
   sqlite3_stmt *stmt = NULL;
   char *sqlBlockAccountByAccountID = "UPDATE Account SET is_block = 1 WHERE account_id = ?";
@@ -208,6 +209,7 @@ void blockAccountByAccountID(sqlite3 *db, int account_id){
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
 }
+*/
 void getHistoryByAccountID(sqlite3 *db, int account_id){
   sqlite3_stmt *stmt = NULL;
   char* sqlGetHistoryByAccountID = "SELECT L.log_date , O.operation_name FROM Log L INNER JOIN Operation O ON L.operation_id = O.operation_id where L.account_id = ?";
@@ -226,7 +228,7 @@ void getHistoryByAccountID(sqlite3 *db, int account_id){
   }
   sqlite3_finalize(stmt);
 }
-
+/*
 void unblockAccountByAccountID(sqlite3 *db, int account_id){
   sqlite3_stmt *stmt = NULL;
   char *sqlBlockAccountByAccountID = "UPDATE Account SET is_block = 0 WHERE account_id = ?";
@@ -235,7 +237,7 @@ void unblockAccountByAccountID(sqlite3 *db, int account_id){
   sqlite3_step(stmt);
   sqlite3_finalize(stmt);
 }
-
+*/
 void deleteClientByClientID(sqlite3 *db, int client_id){
   sqlite3_stmt *stmt = NULL;
   char *sqlDeleteClientByClientID = "UPDATE Client SET is_delete = 1 WHERE client_id = ?";
