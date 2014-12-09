@@ -169,26 +169,6 @@ bool credit(sqlite3 *db)
 	return false;
 }
 
-void blockAccountByNicknameAndType(sqlite3 *db, char * nickname, int type_id){
-	sqlite3_stmt *stmt = NULL;
-	char *sqlBlockAccountByNicknameAndType = "UPDATE Account SET is_block = 1 WHERE client_id = (SELECT client_id FROM Client where nickname = ?) AND account_type_id = ?";
-	sqlite3_prepare_v2(db, sqlBlockAccountByNicknameAndType, strlen(sqlBlockAccountByNicknameAndType), &stmt, NULL);
-	sqlite3_bind_text (stmt, 1, nickname, strlen(nickname), 0);
-	sqlite3_bind_int(stmt, 2, type_id);
-	sqlite3_step(stmt);
-	sqlite3_finalize(stmt);
-}
-
-void blockAccountByClientIDAndType(sqlite3 *db, int client_id, int type_id){
-	sqlite3_stmt *stmt = NULL;
-	char *sqlBlockAccountByClientIDAndType = "UPDATE Account SET is_block = 1 WHERE client_id = ? AND account_type_id = ?";
-	sqlite3_prepare_v2(db, sqlBlockAccountByClientIDAndType, strlen(sqlBlockAccountByClientIDAndType), &stmt, NULL);
-	sqlite3_bind_int(stmt, 1, client_id);
-	sqlite3_bind_int(stmt, 2, type_id);
-	sqlite3_step(stmt);
-	sqlite3_finalize(stmt);
-}
-
 void blockAccountByAccountID(sqlite3 *db, int account_id){
 	sqlite3_stmt *stmt = NULL;
 	char *sqlBlockAccountByAccountID = "UPDATE Account SET is_block = 1 WHERE account_id = ?";
@@ -213,26 +193,6 @@ void getHistoryByAccountID(sqlite3 *db, int account_id){
 
 		printf("date : %s  operation : %s\n",date, operation);
 	}
-	sqlite3_finalize(stmt);
-}
-
-void unblockAccountByNicknameAndType(sqlite3 *db, char * nickname, int type_id){
-	sqlite3_stmt *stmt = NULL;
-	char *sqlBlockAccountByNicknameAndType = "UPDATE Account SET is_block = 0 WHERE client_id = (SELECT client_id FROM Client where nickname = ?) AND account_type_id = ?";
-	sqlite3_prepare_v2(db, sqlBlockAccountByNicknameAndType, strlen(sqlBlockAccountByNicknameAndType), &stmt, NULL);
-	sqlite3_bind_text (stmt, 1, nickname, strlen(nickname), 0);
-	sqlite3_bind_int(stmt, 2, type_id);
-	sqlite3_step(stmt);
-	sqlite3_finalize(stmt);
-}
-
-void unblockAccountByClientIDAndType(sqlite3 *db, int client_id, int type_id){
-	sqlite3_stmt *stmt = NULL;
-	char *sqlBlockAccountByClientIDAndType = "UPDATE Account SET is_block = 0 WHERE client_id = ? AND account_type_id = ?";
-	sqlite3_prepare_v2(db, sqlBlockAccountByClientIDAndType, strlen(sqlBlockAccountByClientIDAndType), &stmt, NULL);
-	sqlite3_bind_int(stmt, 1, client_id);
-	sqlite3_bind_int(stmt, 2, type_id);
-	sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 }
 
@@ -502,7 +462,7 @@ int main(int argc, char **argv) {
 	sqlite3 *db;
 	char *zErrMsg = 0;
 	char buffer[50];
-	int OPERATION_COUNT = 12;
+	int OPERATION_COUNT = 8;
 	int rc, operation, id;
 	char *nickname = "";
 	int account_id = 0;
@@ -512,19 +472,15 @@ int main(int argc, char **argv) {
 	char* password = "";
 
 	// Put our operation here
-	char *states[12] = {
+	char *states[8] = {
 		"1. See all account.",
 		"2. Credit money.",
-		"3. Block account (by client id)",
-		"4. Block account (by nickname)",
-		"5. Block account(by account id)",
-		"6. View the history of user operations",
-		"7. Unblock account (by client id)",
-		"8. Unblock account (by nickname)",
-		"9. Unblock account (by account id)",
-		"10. Delete client (by client id)",
-		"11. Debit money",
-		"12. Get user info"
+		"3. Block account",
+		"4. View the history of user operations",
+		"5. Unblock account",
+		"6. Delete client (by client id)",
+		"7. Debit money",
+		"8. Get user info"
 	};
 
 	rc = sqlite3_open(argv[1], &db);
@@ -555,54 +511,26 @@ int main(int argc, char **argv) {
 					printf("Credit error!\n");
 				break;
 			case 3:
-				printf("Enter client id\n");
-				scanf("%u", &client_id);
-				printf("Enter account type id\n");
-				scanf("%u", &account_id);
-				blockAccountByClientIDAndType(db, client_id, account_id);
-				break;
-			case 4:
-				printf("Enter client nickname\n");
-				scanf("%s", &nickname);
-				printf("Enter account type id\n");
-				scanf("%u", &account_id);
-				blockAccountByNicknameAndType(db, nickname, account_id);
-				break;
-			case 5:
 				printf("Enter account id\n");
 				scanf("%u", &account_id);
 				blockAccountByAccountID(db, account_id);
 				break;
-			case 6:
+			case 4:
 				printf("Enter client account id\n");
 				scanf("%u", &account_id);
 				getHistoryByAccountID(db,account_id);
 				break;
-			case 7:
-				printf("Enter client id\n");
-				scanf("%u", &client_id);
-				printf("Enter account type id\n");
-				scanf("%u", &account_id);
-				unblockAccountByClientIDAndType(db, client_id, account_id);
-				break;
-			case 8:
-				printf("Enter client nickname\n");
-				scanf("%s", &nickname);
-				printf("Enter account type id\n");
-				scanf("%u", &account_id);
-				unbockAccountByNicknameAndType(db, nickname, account_id);
-				break;
-			case 9:
+			case 5:
 				printf("Enter account id\n");
 				scanf("%u", &account_id);
 				unblockAccountByAccountID(db, account_id);
 				break;
-			case 10:
+			case 6:
 				printf("Enter client id\n");
 				scanf("%u", &client_id);
 				deleteClientByClientID(db, client_id);
 				break;
-			case 11:
+			case  7:
 				printf("Enter amount:\n");
 				scanf("%u", &amount);
 				printf("Enter operation date:\n");
@@ -615,7 +543,7 @@ int main(int argc, char **argv) {
 				scanf("%u", &account_id);
 				debitMoney(db, amount, operationDate, nickname, password, account_id);
 				break;
-			case 12:
+			case 8:
 				printf("Enter client nickname\n");
 				scanf("%s", &nickname);
 				printf("Enter client password\n");
