@@ -189,6 +189,14 @@ void blockAccountByClientIDAndType(sqlite3 *db, int client_id, int type_id){
 	sqlite3_finalize(stmt);
 }
 
+void blockAccountByAccountID(sqlite3 *db, int account_id){
+	sqlite3_stmt *stmt = NULL;
+	char *sqlBlockAccountByAccountID = "UPDATE Account SET is_block = 1 WHERE account_id = ?";
+	sqlite3_prepare_v2(db, sqlBlockAccountByAccountID, strlen(sqlBlockAccountByAccountID), &stmt, NULL);
+	sqlite3_bind_int(stmt, 1, account_id);
+	sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+}
 void getHistoryByAccountID(sqlite3 *db, int account_id){
 	sqlite3_stmt *stmt = NULL;
 	char* sqlGetHistoryByAccountID = "SELECT L.log_date , O.operation_name FROM Log L INNER JOIN Operation O ON L.operation_id = O.operation_id where L.account_id = ?";
@@ -224,6 +232,15 @@ void unblockAccountByClientIDAndType(sqlite3 *db, int client_id, int type_id){
 	sqlite3_prepare_v2(db, sqlBlockAccountByClientIDAndType, strlen(sqlBlockAccountByClientIDAndType), &stmt, NULL);
 	sqlite3_bind_int(stmt, 1, client_id);
 	sqlite3_bind_int(stmt, 2, type_id);
+	sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+}
+
+void unblockAccountByAccountID(sqlite3 *db, int account_id){
+	sqlite3_stmt *stmt = NULL;
+	char *sqlBlockAccountByAccountID = "UPDATE Account SET is_block = 0 WHERE account_id = ?";
+	sqlite3_prepare_v2(db, sqlBlockAccountByAccountID, strlen(sqlBlockAccountByAccountID), &stmt, NULL);
+	sqlite3_bind_int(stmt, 1, account_id);
 	sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 }
@@ -485,7 +502,7 @@ int main(int argc, char **argv) {
 	sqlite3 *db;
 	char *zErrMsg = 0;
 	char buffer[50];
-	int OPERATION_COUNT = 10;
+	int OPERATION_COUNT = 12;
 	int rc, operation, id;
 	char *nickname = "";
 	int account_id = 0;
@@ -495,17 +512,19 @@ int main(int argc, char **argv) {
 	char* password = "";
 
 	// Put our operation here
-	char *states[10] = {
+	char *states[12] = {
 		"1. See all account.",
 		"2. Credit money.",
 		"3. Block account (by client id)",
 		"4. Block account (by nickname)",
-		"5. View the history of user operations",
-		"6. Unblock account (by client id)",
-		"7. Unblock account (by nickname)",
-		"8. Delete client (by client id)",
-		"9. Debit money",
-		"10. Get user info"
+		"5. Block account(by account id)",
+		"6. View the history of user operations",
+		"7. Unblock account (by client id)",
+		"8. Unblock account (by nickname)",
+		"9. Unblock account (by account id)",
+		"10. Delete client (by client id)",
+		"11. Debit money",
+		"12. Get user info"
 	};
 
 	rc = sqlite3_open(argv[1], &db);
@@ -550,30 +569,40 @@ int main(int argc, char **argv) {
 				blockAccountByNicknameAndType(db, nickname, account_id);
 				break;
 			case 5:
+				printf("Enter account id\n");
+				scanf("%u", &account_id);
+				blockAccountByAccountID(db, account_id);
+				break;
+			case 6:
 				printf("Enter client account id\n");
 				scanf("%u", &account_id);
 				getHistoryByAccountID(db,account_id);
 				break;
-			case 6:
+			case 7:
 				printf("Enter client id\n");
 				scanf("%u", &client_id);
 				printf("Enter account type id\n");
 				scanf("%u", &account_id);
 				unblockAccountByClientIDAndType(db, client_id, account_id);
 				break;
-			case 7:
+			case 8:
 				printf("Enter client nickname\n");
 				scanf("%s", &nickname);
 				printf("Enter account type id\n");
 				scanf("%u", &account_id);
 				unbockAccountByNicknameAndType(db, nickname, account_id);
 				break;
-			case 8:
+			case 9:
+				printf("Enter account id\n");
+				scanf("%u", &account_id);
+				unblockAccountByAccountID(db, account_id);
+				break;
+			case 10:
 				printf("Enter client id\n");
 				scanf("%u", &client_id);
 				deleteClientByClientID(db, client_id);
 				break;
-			case 9:
+			case 11:
 				printf("Enter amount:\n");
 				scanf("%u", &amount);
 				printf("Enter operation date:\n");
@@ -586,7 +615,7 @@ int main(int argc, char **argv) {
 				scanf("%u", &account_id);
 				debitMoney(db, amount, operationDate, nickname, password, account_id);
 				break;
-			case 10:
+			case 12:
 				printf("Enter client nickname\n");
 				scanf("%s", &nickname);
 				printf("Enter client password\n");
