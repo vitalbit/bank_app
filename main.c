@@ -6,7 +6,7 @@
 #include "sqlite3.h"
 #include <time.h>
 
-#include "include/authorization.h"
+#include "include/getAccountInfoById.h"
 
 #define false 0
 #define true 1
@@ -16,15 +16,15 @@ int curr_id = -1;
 char *role = "";
 
 // Main print
-static int printResult(void *data, int argc, char **argv, char **azColName) {
-  int i;
-  fprintf(stderr, "%s: ", (const char*)data);
-  for (i = 0; i<argc; i++){
-    printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-  }
-  printf("\n");
-  return 0;
-}
+// static int printResult(void *data, int argc, char **argv, char **azColName) {
+//   int i;
+//   fprintf(stderr, "%s: ", (const char*)data);
+//   for (i = 0; i<argc; i++){
+//     printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+//   }
+//   printf("\n");
+//   return 0;
+// }
 
 // Functionality block
 
@@ -55,16 +55,16 @@ bool isAccountBlock(sqlite3 *db, int account_id)
     return true;
 }
 
-int getAccountInfoById(sqlite3 *db, char *errmsg) {
-  char id[10];
-  char sql[100] = "select * from account where account_id=";
+// int getAccountInfoById(sqlite3 *db, char *errmsg) {
+//   char id[10];
+//   char sql[100] = "select * from account where account_id=";
 
-  printf("\tEnter account id to see: ");
-  scanf("%s", id);
+//   printf("\tEnter account id to see: ");
+//   scanf("%s", id);
 
-  strcat(sql, id);
-  return sqlite3_exec(db, sql, printResult, 0, &errmsg);
-}
+//   strcat(sql, id);
+//   return sqlite3_exec(db, sql, printResult, 0, &errmsg);
+// }
 
 void creditLog(sqlite3 *db, int account_id)
 {
@@ -470,27 +470,27 @@ int getUserInfo(sqlite3 *db, char *clientNickName, char *clientPassword)
 }
 
 
-// bool authorization(sqlite3 *db)
-// {
-//   char nick[100], password[100];
-//   char query[1000] = "select role_id from User where nickname = '";
-//   sqlite3_stmt *statement;
-//   printf("\tEnter your nickname: ");
-//   scanf("%s", nick);
-//   printf("\tEnter your password: ");
-//   scanf("%s", password);
-//   strcat(query, nick);
-//   strcat(query, "' and password = '");
-//   strcat(query, password);
-//   strcat(query, "';");
-//   sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
-//   if (sqlite3_step(statement) == SQLITE_ROW)
-//   {
-//     curr_id = atoi((char*)sqlite3_column_text(statement, 0));
-//     return true;
-//   }
-//   return false;
-// }
+bool authorization(sqlite3 *db)
+{
+  char nick[100], password[100];
+  char query[1000] = "select role_id from User where nickname = '";
+  sqlite3_stmt *statement;
+  printf("\tEnter your nickname: ");
+  scanf("%s", nick);
+  printf("\tEnter your password: ");
+  scanf("%s", password);
+  strcat(query, nick);
+  strcat(query, "' and password = '");
+  strcat(query, password);
+  strcat(query, "';");
+  sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
+  if (sqlite3_step(statement) == SQLITE_ROW)
+  {
+    curr_id = atoi((char*)sqlite3_column_text(statement, 0));
+    return true;
+  }
+  return false;
+}
 // end
 
 int main(int argc, char **argv) {
