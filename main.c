@@ -58,12 +58,9 @@ void deleteClientByClientID(sqlite3 *db, int client_id){
 }
 
 int createNewClient(sqlite3 *db, char *full_name, char *email, char *nickname, char *password){
-	const char *insertClient = "insert into Client(full_name, email, nickname, password, is_block) values(?,?,?,?,?)";
+	const char *insertClient = "insert into Client(full_name, email, nickname, password, is_block, is_delete) values(?,?,?,?,?,?)";
 	const char *selectClient = "select client_id from Client where nickname=?";
-
-  printf("started");
-
-	sqlite3_stmt *statement;
+  sqlite3_stmt *statement;
 
 	if (sqlite3_prepare(db, selectClient, -1, &statement, 0) != SQLITE_OK)
 	{
@@ -112,9 +109,15 @@ int createNewClient(sqlite3 *db, char *full_name, char *email, char *nickname, c
 			printf("Could not bind int: %s\n", sqlite3_errmsg(db));
 			return -1;
 		}
+    if (sqlite3_bind_int(statement, 6, 0))
+    {
+      printf("Could not bind int: %s\n", sqlite3_errmsg(db));
+      return -1;
+    }
+
 		if (sqlite3_step(statement) == SQLITE_DONE)
 		{
-			printf("Client created.\n");
+    	printf("Client created.\n");
 		}
 	}
 	else {
