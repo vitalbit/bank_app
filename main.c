@@ -57,9 +57,11 @@ void deleteClientByClientID(sqlite3 *db, int client_id){
   sqlite3_finalize(stmt);
 }
 
-int createNewClient(sqlite3 *db, char* full_name, char* email, char* nickname, char* password){
+int createNewClient(sqlite3 *db, char *full_name, char *email, char *nickname, char *password){
 	const char *insertClient = "insert into Client(full_name, email, nickname, password, is_block) values(?,?,?,?,?)";
 	const char *selectClient = "select client_id from Client where nickname=?";
+
+  printf("started");
 
 	sqlite3_stmt *statement;
 
@@ -120,7 +122,7 @@ int createNewClient(sqlite3 *db, char* full_name, char* email, char* nickname, c
 	}
 }
 
-void printAccountBalance(sqlite3 *db, char *account_id){
+void printAccountBalance(sqlite3 *db, int account_id){
 	double balance;
 	const char *selectBalance = "select balance from Account where account_id=?";
 
@@ -132,9 +134,9 @@ void printAccountBalance(sqlite3 *db, char *account_id){
 		return;
 	}
 
-	if (sqlite3_bind_text(statement, 1, account_id, strlen(account_id), SQLITE_STATIC))
+	if (sqlite3_bind_int(statement, 1, account_id))
 	{
-		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		printf("Could not bind int: %s\n", sqlite3_errmsg(db));
 		return;
 	}
 
@@ -396,24 +398,24 @@ int main(int argc, char **argv) {
   sqlite3 *db;
   char *zErrMsg = 0;
   char buffer[50];
-  int OPERATION_COUNT = 12;
+  const int OPERATION_COUNT = 12;
   int rc, operation, id;
   char *nickname = "";
   int account_id = 0;
   int client_id = 0;
   int amount = 0;
-  char* operationDate="";
-  char* password = "";
-  char* client_full_name = "";
-  char* client_first_name = "";
-  char* client_last_name = "";
-  char* client_email = "";
+  char *operationDate="";
+  char *password = "";
+  char *client_full_name = "";
+  char *client_first_name = "";
+  char *client_last_name = "";
+  char *client_email = "";
   int length = 0;
   int editFieldNum = 0;
   int account_type = 1;
 
   // Put our operation here
-  char *states[12] = {
+  char *states[OPERATION_COUNT] = {
     "1. See all account.",
     "2. Credit money.",
     "3. Block account",
@@ -535,19 +537,21 @@ int main(int argc, char **argv) {
 	  case 9:
 		  if (strcmp(role, "Administrator") == 0)
 		  {
-			  printf("Enter new client full name (first and last names):\n");
-			  scanf("%s %s", &client_first_name, &client_last_name);
+			  printf("Enter new client full name (first and last names separeted by _):\n");
+
+			  /*scanf("%s %s", &client_first_name, &client_last_name);
 			  length = strlen(client_first_name) + strlen(client_last_name) + 1;
 			  client_full_name = malloc(length);
 			  strcpy(client_full_name, client_first_name);
-			  strcat(client_full_name, client_last_name);
+			  strcat(client_full_name, client_last_name);*/
+
 			  scanf("%s", &client_full_name);
 			  printf("Enter new client email:\n");
 			  scanf("%s", &client_email);
 			  printf("Enter new client nickname:\n");
 			  scanf("%s", &nickname);
 			  printf("Enter new client password:\n");
-			  scanf("%s", &password);
+			  scanf("%s", &password);  
 			  createNewClient(db, client_full_name, client_email, nickname, password);
 		  }
 		  else
@@ -557,7 +561,7 @@ int main(int argc, char **argv) {
 		  if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
 		  {
 			  printf("Enter client's account id:\n");
-			  scanf("%s", &account_id);
+			  scanf("%d", &account_id);
 			  printAccountBalance(db, account_id);
 		  }
 		  else
