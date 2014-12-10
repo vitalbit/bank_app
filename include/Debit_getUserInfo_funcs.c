@@ -53,13 +53,19 @@ int debitMoney(sqlite3 *db, int amount, char *operationDate, int clientID, int a
 	else if(exitCode==SQLITE_ROW)
 		balance=sqlite3_column_double(statement, 0);	
 
+	if(balance<amount)
+	{
+		printf("It's not enough money on your account!!\n");
+		return -1;
+	}
+
 	if(sqlite3_prepare(db, updateBalance, -1, &statement, 0)!= SQLITE_OK) 
 	{
 		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
 		return -1;
 	}
 
-	if (sqlite3_bind_double(statement, 1, balance + amount))
+	if (sqlite3_bind_double(statement, 1, balance - amount))
 	{
 		printf("Could not bind double: %s\n", sqlite3_errmsg(db));
 		return -1;
