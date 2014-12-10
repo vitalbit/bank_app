@@ -6,9 +6,9 @@
 #include "sqlite3.h"
 #include <time.h>
 
-//#include "include/getAccountInfoById.h"
+#include "include/getAccountInfoById.h"
 #include "include/credit.h"
-//#include "include/checkAccountBlock.h"
+#include "include/checkAccountBlock.h"
 #include "include/accountOperation.h"
 
 #define false 0
