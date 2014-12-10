@@ -396,7 +396,7 @@ int main(int argc, char **argv) {
   sqlite3 *db;
   char *zErrMsg = 0;
   char buffer[50];
-  int OPERATION_COUNT = 10;
+  int OPERATION_COUNT = 12;
   int rc, operation, id;
   char *nickname = "";
   int account_id = 0;
@@ -409,9 +409,11 @@ int main(int argc, char **argv) {
   char* client_last_name = "";
   char* client_email = "";
   int length = 0;
+  int editFieldNum = 0;
+  int account_type = 1;
 
   // Put our operation here
-  char *states[10] = {
+  char *states[12] = {
     "1. See all account.",
     "2. Credit money.",
     "3. Block account",
@@ -420,8 +422,10 @@ int main(int argc, char **argv) {
     "6. Delete client (by client id)",
     "7. Debit money",
     "8. Get user info",
-	"9. Create client",
-	"10. Check balance"
+    "9. Create client",
+    "10. Check balance",
+    "11. Edit client information",
+    "12. Add account to client"
   };
 
   rc = sqlite3_open(argv[1], &db);
@@ -559,6 +563,34 @@ int main(int argc, char **argv) {
 		  else
 			  printf("Your are not Operator or Administrator\n");
 		  break;
+	case 11:
+		if (strcmp(role, "Administrator") == 0)
+		  {
+		  	printf("Input client's ID: ");
+			scanf("%d", &client_id);
+			printf("Select field to edit:\n\t1 - Full name\n\t2 - Nickname\n\t3 - Email\n\t0 - Exit\n");
+			scanf("%d", &editFieldNum);
+			editClient(db, client_id, editFieldNum);
+			break;
+		  }
+		else
+			 printf("Your are not Administrator\n");
+		break;
+	
+	case 12:
+		if (strcmp(role, "Administrator") == 0)
+		  {
+		  	printf("Input client's ID: ");
+			scanf("%d", &client_id);
+			printf("Select account type to edit:\n\t1 - Savings acc\n\t2 - Current acc\n\t3 - Overdraft acc\n");
+			scanf("%d", &account_type);
+			addAccountToClient(db, client_id, account_type);
+			break;
+		  }
+		else
+			 printf("Your are not Administrator\n");	
+		break; 
+		  
       }
 
 
