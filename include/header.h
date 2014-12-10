@@ -13,3 +13,5 @@ int getAccountInfoById(sqlite3 *db, char *errmsg);
 void editClient(sqlite3 *db, int client_id, int field_num);
 
 void addAccountToClient(sqlite3 *db, int client_id, int acc_type_id);
+
+void getHistoryByAccountID(sqlite3 *db, int account_id);
