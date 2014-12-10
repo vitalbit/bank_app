@@ -58,6 +58,69 @@ void deleteClientByClientID(sqlite3 *db, int client_id){
   sqlite3_finalize(stmt);
 }
 
+int createNewClient(sqlite3 *db, char* full_name, char* email, char* nickname, char* password){
+	const char *insertClient = "insert into Client(full_name, email, nickname, password, is_block) values(?,?,?,?,?)";
+	const char *selectClient = "select client_id from Client where nickname=?";
+
+	sqlite3_stmt *statement;
+
+	if (sqlite3_prepare(db, selectClient, -1, &statement, 0) != SQLITE_OK)
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_bind_text(statement, 1, nickname, strlen(nickname), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return -1;
+	}
+
+	if (sqlite3_step(statement) != SQLITE_ROW){
+
+		if (sqlite3_prepare(db, insertClient, -1, &statement, 0) != SQLITE_OK)
+		{
+			printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+			return -1;
+		}
+
+		if (sqlite3_bind_text(statement, 1, full_name, strlen(full_name), SQLITE_STATIC))
+		{
+			printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+			return -1;
+		}
+
+		if (sqlite3_bind_text(statement, 2, email, strlen(email), SQLITE_STATIC))
+		{
+			printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+			return -1;
+		}
+
+		if (sqlite3_bind_text(statement, 3, nickname, strlen(nickname), SQLITE_STATIC))
+		{
+			printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+			return -1;
+		}
+		if (sqlite3_bind_text(statement, 4, password, strlen(password), SQLITE_STATIC))
+		{
+			printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+			return -1;
+		}
+		if (sqlite3_bind_int(statement, 5, 0))
+		{
+			printf("Could not bind int: %s\n", sqlite3_errmsg(db));
+			return -1;
+		}
+		if (sqlite3_step(statement) == SQLITE_DONE)
+		{
+			printf("Client created.\n");
+		}
+	}
+	else {
+		printf("Client with current login already exists.\n");
+	}
+}
+
 int debitMoney(sqlite3 *db, int amount, char *operationDate, char *clientNickName, char *clientPassword, int accountID)
 {
   char *operationName;
@@ -306,7 +369,7 @@ int main(int argc, char **argv) {
   sqlite3 *db;
   char *zErrMsg = 0;
   char buffer[50];
-  const int OPERATION_COUNT = 8;
+  const int OPERATION_COUNT = 9;
   int rc, operation, id;
   char *nickname = "";
   int account_id = 0;
@@ -314,6 +377,11 @@ int main(int argc, char **argv) {
   int amount = 0;
   char* operationDate="";
   char* password = "";
+  char* client_full_name = "";
+  char* client_first_name = "";
+  char* client_last_name = "";
+  char* client_email = "";
+  int length = 0;
 
   // Put our operation here
   char *states[OPERATION_COUNT] = {
@@ -324,7 +392,8 @@ int main(int argc, char **argv) {
     "5. Unblock account",
     "6. Delete client (by client id)",
     "7. Debit money",
-    "8. Get user info"
+    "8. Get user info",
+    "9. Create client"
   };
 
   rc = sqlite3_open(argv[1], &db);
@@ -431,7 +500,29 @@ int main(int argc, char **argv) {
 		else
 			printf("Your are not Operator or Administrator\n");
         break;
+	  case 9:
+		  if (strcmp(role, "Administrator") == 0)
+		  {
+			  printf("Enter new client full name (first and last names):\n");
+			  scanf("%s %s", &client_first_name, &client_last_name);
+			  length = strlen(client_first_name) + strlen(client_last_name) + 1;
+			  client_full_name = malloc(length);
+			  strcpy(client_full_name, client_first_name);
+			  strcat(client_full_name, client_last_name);
+			  scanf("%s", &client_full_name);
+			  printf("Enter new client email:\n");
+			  scanf("%s", &client_email);
+			  printf("Enter new client nickname:\n");
+			  scanf("%s", &nickname);
+			  printf("Enter new client password:\n");
+			  scanf("%s", &password);
+			  createNewClient(db, client_full_name, client_email, nickname, password);
+		  }
+		  else
+			  printf("Your are not an Administrator\n");
+		  break;
       }
+
 
       if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
