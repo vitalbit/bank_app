@@ -535,7 +535,7 @@ int main(int argc, char **argv) {
 	    if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
 			rc = getAccountInfoById(db, zErrMsg);
 		else
-			printf("Your are not Operator or Administrator");
+			printf("Your are not Operator or Administrator\n");
         break;
       case 2:
 		if (strcmp(role, "Operator") == 0)
@@ -546,7 +546,7 @@ int main(int argc, char **argv) {
 				printf("Credit error!\n");
 		}
 		else
-			printf("Your are not an Operator");
+			printf("Your are not an Operator\n");
         break;
       case 3:
 		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
@@ -556,7 +556,7 @@ int main(int argc, char **argv) {
 			blockAccountByAccountID(db, account_id);
 		}
 		else
-			printf("Your are not Operator or Administrator");
+			printf("Your are not Operator or Administrator\n");
         break;
       case 4:
 		if (strcmp(role, "Administrator") == 0)
@@ -566,7 +566,7 @@ int main(int argc, char **argv) {
 			getHistoryByAccountID(db,account_id);
 		}
 		else
-			printf("Your are not an Administrator");
+			printf("Your are not an Administrator\n");
         break;
       case 5:
 		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
@@ -576,7 +576,7 @@ int main(int argc, char **argv) {
 			unblockAccountByAccountID(db, account_id);
 		}
 		else
-			printf("Your are not Operator or Administrator");
+			printf("Your are not Operator or Administrator\n");
         break;
       case 6:
 		if (strcmp(role, "Administrator") == 0)
@@ -586,7 +586,7 @@ int main(int argc, char **argv) {
 			deleteClientByClientID(db, client_id);
 		}
 		else
-			printf("Your are not an Administrator");
+			printf("Your are not an Administrator\n");
         break;
       case  7:
 		if (strcmp(role, "Operator") == 0)
@@ -604,7 +604,7 @@ int main(int argc, char **argv) {
 			debitMoney(db, amount, operationDate, nickname, password, account_id);
 		}
 		else
-			printf("Your are not an Operator");
+			printf("Your are not an Operator\n");
         break;
       case 8:
 		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
@@ -616,7 +616,7 @@ int main(int argc, char **argv) {
 			getUserInfo(db, nickname, password);
 		}
 		else
-			printf("Your are not Operator or Administrator");
+			printf("Your are not Operator or Administrator\n");
         break;
       }
 

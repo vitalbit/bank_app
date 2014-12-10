@@ -8,7 +8,7 @@ LIB=lib
 SRC=$(wildcard include/*.c)
 
 # default make task
-all: main.c $(SRC) $(LIB)/sqlite3.c
+all: --O3 main.c $(SRC) $(LIB)/sqlite3.c
 	$(CC) $^ -o bank -lpthread -ldl
 # start application
 run: bank
