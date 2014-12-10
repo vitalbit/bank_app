@@ -3,7 +3,7 @@
 #include <string.h>
 #include "../lib/sqlite3.h"
 
-#include "getAccountInfoById.h"
+#include "header.h"
 
 static int printResult(void *data, int argc, char **argv, char **azColName) {
   int i;

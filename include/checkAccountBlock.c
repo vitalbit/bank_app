@@ -3,6 +3,8 @@
 #include <string.h>
 #include "../lib/sqlite3.h"
 
+#include "header.h"
+
 int isAccountBlock(sqlite3 *db, int account_id)
 {
   sqlite3_stmt *stmt = NULL;

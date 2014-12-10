@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "../lib/sqlite3.h"
-#include "checkAccountBlock.h"
+#include "header.h"
 
 void creditLog(sqlite3 *db, int account_id)
 {

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "../lib/sqlite3.h"
 
-#include "accountOperation.h"
+#include "header.h"
 
 void blockAccountByAccountID(sqlite3 *db, int account_id){
   sqlite3_stmt *stmt = NULL;

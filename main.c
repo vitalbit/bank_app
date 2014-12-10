@@ -6,10 +6,7 @@
 #include "sqlite3.h"
 #include <time.h>
 
-#include "include/getAccountInfoById.h"
-#include "include/credit.h"
-#include "include/checkAccountBlock.h"
-#include "include/accountOperation.h"
+#include "include/header.h"
 
 #define false 0
 #define true 1
@@ -17,16 +14,6 @@ typedef int bool; // or #define bool int
 
 int curr_id = -1;
 
-// Main print
-// static int printResult(void *data, int argc, char **argv, char **azColName) {
-//   int i;
-//   fprintf(stderr, "%s: ", (const char*)data);
-//   for (i = 0; i<argc; i++){
-//     printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-//   }
-//   printf("\n");
-//   return 0;
-// }
 
 // Functionality block
 
@@ -43,173 +30,6 @@ char *getRole(sqlite3 *db)
   return NULL;
 }
 
-/*bool isAccountBlock(sqlite3 *db, int account_id)
-{
-  sqlite3_stmt *stmt = NULL;
-  char *sqlBlockAccountByAccountID = "select is_block from Account WHERE account_id = ?;";
-  sqlite3_prepare_v2(db, sqlBlockAccountByAccountID, strlen(sqlBlockAccountByAccountID), &stmt, NULL);
-  sqlite3_bind_int(stmt, 1, account_id);
-  if (sqlite3_step(stmt) == SQLITE_ROW)
-  {
-    return atoi((char*)sqlite3_column_text(stmt, 0));
-  }
-  else
-    return true;
-}*/
-
-// int getAccountInfoById(sqlite3 *db, char *errmsg) {
-//   char id[10];
-//   char sql[100] = "select * from account where account_id=";
-
-//   printf("\tEnter account id to see: ");
-//   scanf("%s", id);
-
-//   strcat(sql, id);
-//   return sqlite3_exec(db, sql, printResult, 0, &errmsg);
-// }
-
-/*void creditLog(sqlite3 *db, int account_id)
-{
-
-  char query[255] = "insert into Log values (null, '";
-  sqlite3_stmt *statement;
-  time_t t = time(NULL);
-  struct tm* tm = localtime(&t);
-  char date[100] = "", tmp[100] = "";
-  // strcat(date, _itoa(tm->tm_year + 1900, tmp, 10));
-  strcat(date, sprintf(tmp, "%d", tm->tm_year + 1900));
-
-  strcat(date, "-");
-  // strcat(date, _itoa(tm->tm_mon + 1, tmp, 10));
-  strcat(date, sprintf(tmp, "%d", tm->tm_mon + 1));
-
-  strcat(date, "-");
-  // strcat(date, _itoa(tm->tm_mday, tmp, 10));
-  strcat(date, sprintf(tmp, "%d", tm->tm_mday));
-
-  strcat(query, date);
-  strcat(query, "', 3, ");
-  // _itoa(account_id, tmp, 10);
-  sprintf(tmp, "%d", account_id);
-
-  strcat(query, tmp);
-  strcat(query, ");");
-  sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
-  sqlite3_step(statement);
-  sqlite3_finalize(statement);
-}*/
-
-/*bool credit(sqlite3 *db)
-{
-  if (strcmp(getRole(db), "Operator") == 0)
-  {
-    int account_id = 0;
-    double credit_sum = 0;
-    char *query = "select at.name, a.balance from AccountType at inner join Account a on a.account_type_id = at.account_type_id where a.account_id = ?;";
-    sqlite3_stmt *statement;
-    printf("\tEnter account id: ");
-    scanf("%d", &account_id);
-    printf("\tEnter credit sum: ");
-    scanf("%lf", &credit_sum);
-    if (!isAccountBlock(db, account_id))
-    {
-      sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);
-      sqlite3_bind_int(statement, 1, account_id);
-      if (sqlite3_step(statement) == SQLITE_ROW)
-      {
-        char *typeAcc = (char*)sqlite3_column_text(statement, 0);
-        char *balance = (char*)sqlite3_column_text(statement, 1);
-        if (strcmp(typeAcc, "Saving account") == 0)
-        {
-          sqlite3_stmt *statement2;
-          char *query2 = "update account set balance = ? where account_id = ?;";
-          int res;
-          sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
-          sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
-          sqlite3_bind_int(statement2, 2, account_id);
-          res = sqlite3_step(statement2);
-          sqlite3_finalize(statement2);
-          sqlite3_close(db);
-          creditLog(db, account_id);
-          return true;
-        }
-        else if (strcmp(typeAcc, "Current account") == 0)
-        {
-          sqlite3_stmt *statement2;
-          char *query2 = "update account set balance = ? where account_id = ?;";
-          int res;
-          sqlite3_stmt *statement3;
-          char *query3 = "select total_operations from CurrentAccount where account_id = ?;";
-          sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
-          sqlite3_bind_double(statement2, 1, atof(balance) + credit_sum);
-          sqlite3_bind_int(statement2, 2, account_id);
-          res = sqlite3_step(statement2);
-          sqlite3_finalize(statement2);
-
-          sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
-          sqlite3_bind_int(statement3, 1, account_id);
-          if (sqlite3_step(statement3) == SQLITE_ROW)
-          {
-            int total = atoi((char*)sqlite3_column_text(statement3, 0));
-            sqlite3_stmt *statement4;
-            char *query4 = "update CurrentAccount set total_operations = ? where account_id = ?;";
-            int res;
-            sqlite3_prepare_v2(db, query4, strlen(query4), &statement4, NULL);
-            sqlite3_bind_int(statement4, 1, total + 1);
-            sqlite3_bind_int(statement4, 2, account_id);
-            res = sqlite3_step(statement4);
-            sqlite3_finalize(statement4);
-            sqlite3_close(db);
-            creditLog(db, account_id);
-            return true;
-          }
-        }
-        else if (strcmp(typeAcc, "Overdraft account") == 0)
-        {
-          sqlite3_stmt *statement2;
-          char *query2 = "select max_amount from OverdraftAccount where account_id = ?;";
-          sqlite3_prepare_v2(db, query2, strlen(query2), &statement2, NULL);
-          sqlite3_bind_int(statement2, 1, account_id);
-          if (sqlite3_step(statement2) == SQLITE_ROW)
-          {
-            double max = atof((char*)sqlite3_column_text(statement2, 0));
-            if (atof(balance) + credit_sum <= max)
-            {
-              sqlite3_stmt *statement3;
-              char *query3 = "update account set balance = ? where account_id = ?;";
-              int res;
-              sqlite3_prepare_v2(db, query3, strlen(query3), &statement3, NULL);
-              sqlite3_bind_double(statement3, 1, atof(balance) + credit_sum);
-              sqlite3_bind_int(statement3, 2, account_id);
-              res = sqlite3_step(statement3);
-              sqlite3_finalize(statement3);
-              sqlite3_close(db);
-              creditLog(db, account_id);
-              return true;
-            }
-            else
-              printf("\tResult balance more than limit!\n");
-          }
-        }
-      }
-      else
-        printf("\tNo account with such id!\n");
-    }
-    else
-      printf("\tAccount is block!\n");
-  }
-  return false;
-}*/
-/*
-void blockAccountByAccountID(sqlite3 *db, int account_id){
-  sqlite3_stmt *stmt = NULL;
-  char *sqlBlockAccountByAccountID = "UPDATE Account SET is_block = 1 WHERE account_id = ?";
-  sqlite3_prepare_v2(db, sqlBlockAccountByAccountID, strlen(sqlBlockAccountByAccountID), &stmt, NULL);
-  sqlite3_bind_int(stmt, 1, account_id);
-  sqlite3_step(stmt);
-  sqlite3_finalize(stmt);
-}
-*/
 void getHistoryByAccountID(sqlite3 *db, int account_id){
   sqlite3_stmt *stmt = NULL;
   char* sqlGetHistoryByAccountID = "SELECT L.log_date , O.operation_name FROM Log L INNER JOIN Operation O ON L.operation_id = O.operation_id where L.account_id = ?";
@@ -228,16 +48,7 @@ void getHistoryByAccountID(sqlite3 *db, int account_id){
   }
   sqlite3_finalize(stmt);
 }
-/*
-void unblockAccountByAccountID(sqlite3 *db, int account_id){
-  sqlite3_stmt *stmt = NULL;
-  char *sqlBlockAccountByAccountID = "UPDATE Account SET is_block = 0 WHERE account_id = ?";
-  sqlite3_prepare_v2(db, sqlBlockAccountByAccountID, strlen(sqlBlockAccountByAccountID), &stmt, NULL);
-  sqlite3_bind_int(stmt, 1, account_id);
-  sqlite3_step(stmt);
-  sqlite3_finalize(stmt);
-}
-*/
+
 void deleteClientByClientID(sqlite3 *db, int client_id){
   sqlite3_stmt *stmt = NULL;
   char *sqlDeleteClientByClientID = "UPDATE Client SET is_delete = 1 WHERE client_id = ?";
@@ -495,7 +306,7 @@ int main(int argc, char **argv) {
   sqlite3 *db;
   char *zErrMsg = 0;
   char buffer[50];
-  int OPERATION_COUNT = 8;
+  const int OPERATION_COUNT = 8;
   int rc, operation, id;
   char *nickname = "";
   int account_id = 0;
@@ -505,7 +316,7 @@ int main(int argc, char **argv) {
   char* password = "";
 
   // Put our operation here
-  char *states[8] = {
+  char *states[OPERATION_COUNT] = {
     "1. See all account.",
     "2. Credit money.",
     "3. Block account",
