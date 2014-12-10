@@ -14,7 +14,6 @@ typedef int bool; // or #define bool int
 
 int curr_id = -1;
 
-
 // Functionality block
 
 char *getRole(sqlite3 *db)
@@ -118,6 +117,34 @@ int createNewClient(sqlite3 *db, char* full_name, char* email, char* nickname, c
 	}
 	else {
 		printf("Client with current login already exists.\n");
+	}
+}
+
+void printAccountBalance(sqlite3 *db, char *account_id){
+	double balance;
+	const char *selectBalance = "select balance from Account where account_id=?";
+
+	sqlite3_stmt *statement;
+
+	if (sqlite3_prepare(db, selectBalance, -1, &statement, 0) != SQLITE_OK)
+	{
+		printf("Could not prepare statement: %s\n", sqlite3_errmsg(db));
+		return;
+	}
+
+	if (sqlite3_bind_text(statement, 1, account_id, strlen(account_id), SQLITE_STATIC))
+	{
+		printf("Could not bind text: %s\n", sqlite3_errmsg(db));
+		return;
+	}
+
+	if (sqlite3_step(statement) == SQLITE_ROW){
+		balance = sqlite3_column_double(statement, 0);
+		printf("Balance = %f\n", balance);
+	}
+	else {
+		printf("No such account\n");
+		return;
 	}
 }
 
@@ -369,7 +396,7 @@ int main(int argc, char **argv) {
   sqlite3 *db;
   char *zErrMsg = 0;
   char buffer[50];
-  const int OPERATION_COUNT = 9;
+  int OPERATION_COUNT = 10;
   int rc, operation, id;
   char *nickname = "";
   int account_id = 0;
@@ -384,7 +411,7 @@ int main(int argc, char **argv) {
   int length = 0;
 
   // Put our operation here
-  char *states[OPERATION_COUNT] = {
+  char *states[10] = {
     "1. See all account.",
     "2. Credit money.",
     "3. Block account",
@@ -393,7 +420,8 @@ int main(int argc, char **argv) {
     "6. Delete client (by client id)",
     "7. Debit money",
     "8. Get user info",
-    "9. Create client"
+	"9. Create client",
+	"10. Check balance"
   };
 
   rc = sqlite3_open(argv[1], &db);
@@ -520,6 +548,16 @@ int main(int argc, char **argv) {
 		  }
 		  else
 			  printf("Your are not an Administrator\n");
+		  break;
+	  case 10:
+		  if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
+		  {
+			  printf("Enter client's account id:\n");
+			  scanf("%s", &account_id);
+			  printAccountBalance(db, account_id);
+		  }
+		  else
+			  printf("Your are not Operator or Administrator\n");
 		  break;
       }
 
