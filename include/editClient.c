@@ -59,6 +59,5 @@ void editClient(sqlite3 *db, int client_id, int field_num)
 			break;
 		default:
 			break;
-		}
 	}
 }
