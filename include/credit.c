@@ -13,13 +13,16 @@ void creditLog(sqlite3 *db, int account_id)
   time_t t = time(NULL);
   struct tm* tm = localtime(&t);
   char date[100] = "", tmp[100] = "";
-  strcat(date, sprintf(tmp, "%d", tm->tm_year + 1900));
+  sprintf(tmp, "%d", tm->tm_year + 1900);
+  strcat(date, tmp);
 
+  sprintf(tmp, "%d", tm->tm_mon + 1);
   strcat(date, "-");
-  strcat(date, sprintf(tmp, "%d", tm->tm_mon + 1));
+  strcat(date, tmp);
 
+  sprintf(tmp, "%d", tm->tm_mday);
   strcat(date, "-");
-  strcat(date, sprintf(tmp, "%d", tm->tm_mday));
+  strcat(date, tmp);
 
   strcat(query, date);
   strcat(query, "', 3, ");

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sqlite3.h"
+#include "lib/sqlite3.h"
 #include <time.h>
 
 #include "include/header.h"
@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
   int account_type = 1;
 
   // Put our operation here
-  char *states[OPERATION_COUNT] = {
+  char *states[12] = {
     "1. See all account.",
     "2. Credit money.",
     "3. Block account",
@@ -274,13 +274,11 @@ int main(int argc, char **argv) {
 			scanf("%u", &amount);
 			printf("Enter operation date:\n");
 			scanf("%s", &operationDate);
-			printf("Enter client nickname\n");
-			scanf("%s", &nickname);
-			printf("Enter client password\n");
-			scanf("%s", &password);
+			printf("Enter client id\n");
+			scanf("%s", &client_id);
 			printf("Enter account  id\n");
 			scanf("%u", &account_id);
-			debitMoney(db, amount, operationDate, nickname, password, account_id);
+			debitMoney(db, amount, operationDate, client_id, account_id);
 		}
 		else
 			printf("Your are not an Operator\n");
@@ -288,11 +286,9 @@ int main(int argc, char **argv) {
       case 8:
 		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
 		{
-			printf("Enter client nickname\n");
-			scanf("%s", &nickname);
-			printf("Enter client password\n");
-			scanf("%s", &password);
-			getUserInfo(db, nickname, password);
+			printf("Enter client id\n");
+			scanf("%s", &client_id);
+			getUserInfo(db, client_id);
 		}
 		else
 			printf("Your are not Operator or Administrator\n");
