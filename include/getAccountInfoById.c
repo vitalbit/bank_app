@@ -15,12 +15,8 @@ static int printResult(void *data, int argc, char **argv, char **azColName) {
   return 0;
 }
 
-int getAccountInfoById(sqlite3 *db, char *errmsg) {
-  char id[10];
+int getAccountInfoById(sqlite3 *db, char *errmsg, char *id) {
   char sql[100] = "select * from account where account_id=";
-
-  printf("\tEnter account id to see: ");
-  scanf("%s", id);
 
   strcat(sql, id);
   return sqlite3_exec(db, sql, printResult, 0, &errmsg);

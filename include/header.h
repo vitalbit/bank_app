@@ -6,7 +6,7 @@ int isAccountBlock(sqlite3 *db, int account_id);
 
 int credit(sqlite3 *db, int account_id, double credit_sum);
 
-int getAccountInfoById(sqlite3 *db, char *errmsg);
+int getAccountInfoById(sqlite3 *db, char *errmsg, char *id);
 
 void editClient(sqlite3 *db, int client_id, int field_num);
 

@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 
   // Put our operation here
   char *states[12] = {
-    "1. See all account.",
+    "1. See info account by ID.",
     "2. Credit money.",
     "3. Block account",
     "4. View the history of user operations",
@@ -109,14 +109,18 @@ int main(int argc, char **argv) {
 
     while (!rc) {
       int i;
+      char id_[10];
       for (i = 0; i != OPERATION_COUNT; i++) {
         printf("%s\n", states[i]);
       }
       scanf("%d", &operation);
       switch (operation) {
       case 1:
-	    if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
-			rc = getAccountInfoById(db, zErrMsg);
+	    if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0) {
+        printf("\tEnter account id to see: ");
+        scanf("%s", id_);
+        rc = getAccountInfoById(db, zErrMsg, id_);
+      }
 		else
 			printf("Your are not Operator or Administrator\n");
         break;
