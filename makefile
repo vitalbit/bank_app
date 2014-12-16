@@ -7,15 +7,21 @@ DB=Bank.sqlite
 LIB=lib
 SRC=$(wildcard include/*.c)
 
+CMD_ALL=$(CC) $^ -o bank
+
 ifeq ($(OS), Windows_NT)
-	CMD_RUN=bank.exe $(DB)
+  CMD_RUN=bank.exe $(DB)
 else
-	CMD_RUN=./bank $(DB)
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+     CMD_ALL += -lpthread -ldl
+  endif
+  CMD_RUN=./bank $(DB)
 endif
 
 # default make task
 all: main.c $(SRC) $(LIB)/sqlite3.c
-	$(CC) $^ -o bank -lpthread -ldl
+	$(CMD_ALL)
 # start application
 run: bank
 	$(CMD_RUN)
