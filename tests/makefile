@@ -1,0 +1,15 @@
+# c compiler
+# CC=$(CROSS_COMPILE)clang
+CC=$(CROSS_COMPILE)gcc
+
+# Varibles
+DB=../Bank.sqlite
+LIB=../lib
+SRC=$(wildcard ../include/*.c)
+
+# default make task
+all: test.c $(SRC) $(LIB)/sqlite3.c
+	$(CC) $^ -lcheck -o tests
+# start application
+test: tests
+	./tests

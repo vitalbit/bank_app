@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../lib/sqlite3.h"
+#include "sqlite3.h"
 
-#include "header.h"
+#include "Debit_getUserInfo_funcs.h"
 
-
-int debitMoney(sqlite3 *db, int amount, char *operationDate, int clientID, int accountID)
+int debitMoney(sqlite3 *db, double amount, char *operationDate, int clientID, int accountID)
 {
 	char *operationName;
 
@@ -201,10 +200,10 @@ int getUserInfo(sqlite3 *db, int clientID)
 		printf("E-mail: %s\n", email);
 
 		nickName=(char*)sqlite3_column_text(statement, 3);
-		printf("Nick: %s\n", email);
+		printf("Nick: %s\n", nickName);
 
 		password=(char*)sqlite3_column_text(statement, 4);
-		printf("Password: %s\n", email);
+		printf("Password: %s\n", password);
 
 		block=sqlite3_column_int(statement, 5);
 		printf("Is blocked: %d\n", block);

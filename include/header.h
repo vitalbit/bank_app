@@ -17,3 +17,4 @@ void getHistoryByAccountID(sqlite3 *db, int account_id);
 int debitMoney(sqlite3 *db, int amount, char *operationDate, int clientID, int accountID);
 
 int getUserInfo(sqlite3 *db, int clientID);
+
