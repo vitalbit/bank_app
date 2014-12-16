@@ -35,16 +35,10 @@ void creditLog(sqlite3 *db, int account_id)
   sqlite3_finalize(statement);
 }
 
-int credit(sqlite3 *db)
+int credit(sqlite3 *db, int account_id, double credit_sum)
 {
-    int account_id = 0;
-    double credit_sum = 0;
     char *query = "select at.name, a.balance from AccountType at inner join Account a on a.account_type_id = at.account_type_id where a.account_id = ?;";
     sqlite3_stmt *statement;
-    printf("\tEnter account id: ");
-    scanf("%d", &account_id);
-    printf("\tEnter credit sum: ");
-    scanf("%lf", &credit_sum);
     if (!isAccountBlock(db, account_id))
     {
       sqlite3_prepare_v2(db, query, strlen(query), &statement, NULL);

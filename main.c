@@ -12,11 +12,9 @@
 #define true 1
 typedef int bool; // or #define bool int
 
-int curr_id = -1;
-
 // Functionality block
 
-char *getRole(sqlite3 *db)
+char *getRole(sqlite3 *db, int curr_id)
 {
   char* query = "select role_name from User_role where role_id = ?;";
   sqlite3_stmt *statement;
@@ -134,15 +132,11 @@ void printAccountBalance(sqlite3 *db, int account_id){
 	}
 }
 
-bool authorization(sqlite3 *db)
+bool authorization(sqlite3 *db, char nick[100], char password[100])
 {
-  char nick[100], password[100];
-  char query[1000] = "select role_id from User where nickname = '";
+  char query[500] = "select role_id from User where nickname = '";
+  int curr_id = 0;
   sqlite3_stmt *statement;
-  printf("\tEnter your nickname: ");
-  scanf("%s", nick);
-  printf("\tEnter your password: ");
-  scanf("%s", password);
   strcat(query, nick);
   strcat(query, "' and password = '");
   strcat(query, password);
@@ -151,16 +145,15 @@ bool authorization(sqlite3 *db)
   if (sqlite3_step(statement) == SQLITE_ROW)
   {
     curr_id = atoi((char*)sqlite3_column_text(statement, 0));
-    return true;
   }
-  return false;
+  return curr_id;
 }
 // end
 
 int main(int argc, char **argv) {
   sqlite3 *db;
   char *zErrMsg = 0;
-  char buffer[50];
+  char buffer[50], nick[100], pass[100];
   const int OPERATION_COUNT = 12;
   int rc, operation, id;
   char *nickname = "";
@@ -176,6 +169,8 @@ int main(int argc, char **argv) {
   int length = 0;
   int editFieldNum = 0;
   int account_type = 1;
+  int curr_id = 0;
+  double credit_sum = 0;
 
   // Put our operation here
   char *states[12] = {
@@ -199,9 +194,15 @@ int main(int argc, char **argv) {
     sqlite3_close(db);
     return(1);
   }
+  
+  printf("\tEnter your nickname: ");
+  scanf("%s", &nick);
+  printf("\tEnter your password: ");
+  scanf("%s", &pass);
+  curr_id = authorization(db, nick, pass);
 
-  if (authorization(db)) {
-    char *role = getRole(db);
+  if (curr_id > 0) {
+    char *role = getRole(db, curr_id);
 
     while (!rc) {
       int i;
@@ -219,7 +220,11 @@ int main(int argc, char **argv) {
       case 2:
 		if (strcmp(role, "Operator") == 0)
 		{
-			if (credit(db))
+			printf("\tEnter account id: ");
+			scanf("%d", &account_id);
+			printf("\tEnter credit sum: ");
+			scanf("%lf", &credit_sum);
+			if (credit(db, account_id, credit_sum))
 				printf("Credit success!\n");
 			else
 				printf("Credit error!\n");
