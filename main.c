@@ -39,7 +39,7 @@ void deleteClientByClientID(sqlite3 *db, int client_id){
 int createNewClient(sqlite3 *db, char *full_name, char *email, char *nickname, char *password){
 	const char *insertClient = "insert into Client(full_name, email, nickname, password, is_block, is_delete) values(?,?,?,?,?,?)";
 	const char *selectClient = "select client_id from Client where nickname=?";
-  sqlite3_stmt *statement;
+    sqlite3_stmt *statement;
 
 	if (sqlite3_prepare(db, selectClient, -1, &statement, 0) != SQLITE_OK)
 	{
@@ -161,11 +161,10 @@ int main(int argc, char **argv) {
   int client_id = 0;
   int amount = 0;
   char *operationDate="";
-  char *password = "";
-  char *client_full_name = "";
-  char *client_first_name = "";
-  char *client_last_name = "";
-  char *client_email = "";
+  char password[80];
+  char client_full_name[80];
+  char client_email[80];
+  char client_nickname[80];
   int length = 0;
   int editFieldNum = 0;
   int account_type = 1;
@@ -301,22 +300,19 @@ int main(int argc, char **argv) {
 	  case 9:
 		  if (strcmp(role, "Administrator") == 0)
 		  {
-			  printf("Enter new client full name (first and last names separeted by _):\n");
-
-			  /*scanf("%s %s", &client_first_name, &client_last_name);
-			  length = strlen(client_first_name) + strlen(client_last_name) + 1;
-			  client_full_name = malloc(length);
-			  strcpy(client_full_name, client_first_name);
-			  strcat(client_full_name, client_last_name);*/
-
-			  scanf("%s", &client_full_name);
+			  printf("Enter new client full name (first and last names):\n");
+			  fflush(stdin);
+			  fgets(client_full_name, 79, stdin);
 			  printf("Enter new client email:\n");
-			  scanf("%s", &client_email);
+			  fflush(stdin);
+			  fgets(client_email, 79, stdin);
 			  printf("Enter new client nickname:\n");
-			  scanf("%s", &nickname);
-			  printf("Enter new client password:\n");
-			  scanf("%s", &password);  
-			  createNewClient(db, client_full_name, client_email, nickname, password);
+			  fflush(stdin);
+			  fgets(client_nickname, 79, stdin);
+			  printf("Enter new client password:\n"); 
+			  fflush(stdin);
+			  fgets(password, 79, stdin);
+			  createNewClient(db, &client_full_name, &client_email, &client_nickname, &password);
 		  }
 		  else
 			  printf("Your are not an Administrator\n");
