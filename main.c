@@ -166,19 +166,21 @@ int main(int argc, char **argv) {
       case 6:
 		if (strcmp(role, "Administrator") == 0)
 		{
-			printf("Enter client id\n");
+			printf("Enter client id:\n");
 			scanf("%u", &client_id);
 			deleteClientByClientID(db, client_id);
+			printf("Client was marked as deleted!\n");
 		}
 		else
 			printf("You are not an Administrator\n");
         break;
-	  case 7:
+		case 7:
 		if (strcmp(role, "Administrator") == 0)
 		{
-			printf("Enter client id\n");
+			printf("Enter client id:\n");
 			scanf("%u", &client_id);
 			restoreClientByClientID(db, client_id);
+			printf("Client was restored!\n");
 		}
 		else
 			printf("You are not an Administrator\n");
