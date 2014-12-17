@@ -24,7 +24,7 @@ START_TEST(test_authorization_true)
 	char pass[100] = "6666";
 	sqlite3 *db = NULL;
 	sqlite3_open("../Bank.sqlite", &db);
-	ck_assert_int_eq(credit(db, nick, pass) > 0, 1);
+	ck_assert_int_eq(authorization(db, nick, pass) > 0, 1);
 }
 END_TEST
  
