@@ -1,4 +1,4 @@
-## Usage
+## Usage [![Build Status](https://travis-ci.org/vitalbit/bank_app.svg?branch=master)](https://travis-ci.org/vitalbit/bank_app)
 
 You must have a proper c compiler (gcc or clang). In terminal run:
 ```
