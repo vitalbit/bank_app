@@ -1,3 +1,4 @@
 bank
 tests/tests
-*.c~
+**/*.c~
+**/*.h~
