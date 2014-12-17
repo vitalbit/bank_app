@@ -13,7 +13,7 @@ void deleteAccountByClientId(sqlite3 *db, int client_id)
 	sqlite3_bind_int(stmt, 1, client_id);
 	if (sqlite3_step(stmt) == SQLITE_DONE)
 	{
-		printf("User has been deleted.\n");
+		printf("Account has been deleted.\n");
 	}
 	sqlite3_finalize(stmt);
 }
