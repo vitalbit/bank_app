@@ -18,3 +18,5 @@ int debitMoney(sqlite3 *db, double amount, char *operationDate, int clientID, in
 
 int getUserInfo(sqlite3 *db, int clientID);
 
+void deleteAccountByClientId(sqlite3 *db, int client_id);
+

@@ -88,7 +88,8 @@ int main(int argc, char **argv) {
     "9. Create client",
     "10. Check balance",
     "11. Edit client information",
-    "12. Add account to client"
+    "12. Add account to client",
+    "13. Delete account (by client id)"
   };
 
   rc = sqlite3_open(argv[1], &db);
@@ -261,8 +262,18 @@ int main(int argc, char **argv) {
 		  }
 		else
 			 printf("Your are not Administrator\n");	
-		break; 
-		  
+		break;
+	case 13:
+		if (strcmp(role, "Administrator") == 0)
+		{
+			printf("Enter client id: ");
+			scanf("%d", &client_id);
+			deleteAccountByClientId(db, client_id);
+			break;
+		}
+		else
+			printf("You are not an Administrator\n");
+		break;
       }
 
 
