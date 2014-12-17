@@ -20,5 +20,5 @@ int getUserInfo(sqlite3 *db, int clientID);
 
 void deleteAccountByClientId(sqlite3 *db, int client_id);
 
-int checkBlockOnClient(sqlite3 *db, int client_id);
+void checkBlockOnClient(sqlite3 *db, int client_id);
 
