@@ -2,4 +2,4 @@ language: c
 compiler:
   - gcc
   - clang
-script: sudo apt-get install check && cd ../tests && sudo ldconfig && make && make test
+script: sudo apt-get install check && cd tests && sudo ldconfig && make && make test
