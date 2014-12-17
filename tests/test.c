@@ -18,13 +18,13 @@ START_TEST(test_getAccountInfoById_create)
 }
 END_TEST
 
-START_TEST(test_authorization_true)
+START_TEST(test_credit_true)
 {
 	char nick[100] = "main_admin";
 	char pass[100] = "6666";
 	sqlite3 *db = NULL;
 	sqlite3_open("../Bank.sqlite", &db);
-	ck_assert_int_eq(authorization(db, nick, pass) > 0, 1);
+	ck_assert_int_eq(credit(db, 1, 1) > 0, 1);
 }
 END_TEST
  
@@ -39,7 +39,7 @@ Suite * getAccountInfoById_suite(void)
   tc_core = tcase_create("Core");
 
   tcase_add_test(tc_core, test_getAccountInfoById_create);
-  tcase_add_test(tc_core, test_authorization_true);
+  tcase_add_test(tc_core, test_credit_true);
   suite_add_tcase(s, tc_core);
 
   return s;
