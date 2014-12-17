@@ -5,7 +5,7 @@
 
 #include "header.h"
 
-void deleteUserById(sqlite3 *db, int client_id)
+void deleteAccountByClientId(sqlite3 *db, int client_id)
 {
 	char *query = "delete from Account where client_id=?;";
 	sqlite3_stmt *stmt = NULL;
