@@ -27,15 +27,6 @@ char *getRole(sqlite3 *db, int curr_id)
   return NULL;
 }
 
-void deleteClientByClientID(sqlite3 *db, int client_id){
-  sqlite3_stmt *stmt = NULL;
-  char *sqlDeleteClientByClientID = "UPDATE Client SET is_delete = 1 WHERE client_id = ?";
-  sqlite3_prepare_v2(db, sqlDeleteClientByClientID, strlen(sqlDeleteClientByClientID), &stmt, NULL);
-  sqlite3_bind_int(stmt, 1, client_id);
-  sqlite3_step(stmt);
-  sqlite3_finalize(stmt);
-}
-
 bool authorization(sqlite3 *db, char nick[100], char password[100])
 {
   char query[500] = "select role_id from User where nickname = '";
@@ -76,21 +67,22 @@ int main(int argc, char **argv) {
   double credit_sum = 0;
 
   // Put our operation here
-  char *states[12] = {
+  char *states[15] = {
     "1. See info account by ID.",
     "2. Credit money.",
     "3. Block account",
     "4. View the history of user operations",
     "5. Unblock account",
     "6. Delete client (by client id)",
-    "7. Debit money",
-    "8. Get user info",
-    "9. Create client",
-    "10. Check balance",
-    "11. Edit client information",
-    "12. Add account to client",
-    "13. Delete account (by client id)",
-    "14. Check block on client"
+	"7. Restore client (by client id)",
+    "8. Debit money",
+    "9. Get user info",
+    "10. Create client",
+    "11. Check balance",
+    "12. Edit client information",
+    "13. Add account to client",
+    "14. Delete account (by client id)",
+    "15. Check block on client"
   };
 
   rc = sqlite3_open(argv[1], &db);
@@ -179,9 +171,19 @@ int main(int argc, char **argv) {
 			deleteClientByClientID(db, client_id);
 		}
 		else
-			printf("Your are not an Administrator\n");
+			printf("You are not an Administrator\n");
         break;
-      case  7:
+	  case 7:
+		if (strcmp(role, "Administrator") == 0)
+		{
+			printf("Enter client id\n");
+			scanf("%u", &client_id);
+			restoreClientByClientID(db, client_id);
+		}
+		else
+			printf("You are not an Administrator\n");
+		break;
+      case  8:
 		if (strcmp(role, "Operator") == 0)
 		{
 			printf("Enter amount:\n");
@@ -197,7 +199,7 @@ int main(int argc, char **argv) {
 		else
 			printf("Your are not an Operator\n");
         break;
-      case 8:
+      case 9:
 		if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
 		{
 			printf("Enter client id\n");
@@ -207,7 +209,7 @@ int main(int argc, char **argv) {
 		else
 			printf("Your are not Operator or Administrator\n");
         break;
-	  case 9:
+	  case 10:
 		  if (strcmp(role, "Administrator") == 0)
 		  {
 			  printf("Enter new client full name (first and last names):\n");
@@ -227,7 +229,7 @@ int main(int argc, char **argv) {
 		  else
 			  printf("Your are not an Administrator\n");
 		  break;
-	  case 10:
+	  case 11:
 		  if (strcmp(role, "Operator") == 0 || strcmp(role, "Administrator") == 0)
 		  {
 			  printf("Enter client's account id:\n");
@@ -237,7 +239,7 @@ int main(int argc, char **argv) {
 		  else
 			  printf("Your are not Operator or Administrator\n");
 		  break;
-	case 11:
+	case 12:
 		if (strcmp(role, "Administrator") == 0)
 		  {
 		  	printf("Input client's ID: ");
@@ -251,7 +253,7 @@ int main(int argc, char **argv) {
 			 printf("Your are not Administrator\n");
 		break;
 	
-	case 12:
+	case 13:
 		if (strcmp(role, "Administrator") == 0)
 		  {
 		  	printf("Input client's ID: ");
@@ -264,7 +266,7 @@ int main(int argc, char **argv) {
 		else
 			 printf("Your are not Administrator\n");	
 		break;
-	case 13:
+	case 14:
 		if (strcmp(role, "Administrator") == 0)
 		{
 			printf("Enter client id: ");
@@ -275,7 +277,7 @@ int main(int argc, char **argv) {
 		else
 			printf("You are not an Administrator\n");
 		break;
-	case 14:
+	case 15:
 		if (strcmp(role, "Administrator") == 0)
 		{
 			printf("Enter client id: ");
