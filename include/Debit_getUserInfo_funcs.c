@@ -3,7 +3,7 @@
 #include <string.h>
 #include "sqlite3.h"
 
-#include "Debit_getUserInfo_funcs.h"
+#include "header.h"
 
 int debitMoney(sqlite3 *db, double amount, char *operationDate, int clientID, int accountID)
 {

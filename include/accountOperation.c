@@ -5,6 +5,10 @@
 
 #include "header.h"
 
+#define false 0
+#define true 1
+typedef int bool;
+
 bool checkBlocking(sqlite3 *db, int account_id){
 	sqlite3_stmt *stmt = NULL;
 	char *checkBlocking = "Select is_block from Account WHERE account_id = ?";
